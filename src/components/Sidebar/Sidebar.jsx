@@ -54,17 +54,17 @@ function Sidebar() {
   };
 
   const menuItems = [
-    { path: "/", icon: HiChartBar, label: "Dashboard", color: "blue" },
+    { path: "/", icon: HiChartBar, label: "Dashboard", color: "emerald" },
     { path: "/tutor", icon: HiAcademicCap, label: "Tutors", color: "emerald" },
-    { path: "/student", icon: HiUserGroup, label: "Students / Leads", color: "purple" },
-    { path: "/course", icon: HiCollection, label: "Courses & Categories", color: "orange" },
-    { path: "/assignment", icon: HiBookOpen, label: "Tutor Assigning", color: "pink" },
-    { path: "/studentassign", icon: HiUserGroup, label: "Student Assigning", color: "indigo" },
-    { path: "/payment", icon: HiCash, label: "Package & Payments", color: "green" },
-    { path: "/user", icon: HiUser, label: "Users", color: "red" },
-    { path: "/testmonio", icon: HiStar, label: "Testimonials", color: "yellow" },
-    { path: "/blog", icon: HiDocumentText, label: "Blog", color: "teal" },
-    { path: "/chat", icon: HiChatAlt2, label: "Messages / Chat", color: "blue" },
+    { path: "/student", icon: HiUserGroup, label: "Students / Leads", color: "emerald" },
+    { path: "/course", icon: HiCollection, label: "Courses & Categories", color: "emerald" },
+    { path: "/assignment", icon: HiBookOpen, label: "Tutor Assigning", color: "emerald" },
+    { path: "/studentassign", icon: HiUserGroup, label: "Student Assigning", color: "emerald" },
+    { path: "/payment", icon: HiCash, label: "Package & Payments", color: "emerald" },
+    { path: "/user", icon: HiUser, label: "Users", color: "emerald" },
+    { path: "/testmonio", icon: HiStar, label: "Testimonials", color: "emerald" },
+    { path: "/blog", icon: HiDocumentText, label: "Blog", color: "emerald" },
+    { path: "/chat", icon: HiChatAlt2, label: "Messages / Chat", color: "emerald" },
   ];
 
   const getColorClasses = (color, isActive = false) => {
@@ -244,34 +244,7 @@ function Sidebar() {
       </Modal>
 
       {/* Custom Animation Styles */}
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        
-        .sidebar-item {
-          animation: slideIn 0.3s ease-out forwards;
-        }
-        
-        .sidebar-item:nth-child(1) { animation-delay: 0.1s; }
-        .sidebar-item:nth-child(2) { animation-delay: 0.15s; }
-        .sidebar-item:nth-child(3) { animation-delay: 0.2s; }
-        .sidebar-item:nth-child(4) { animation-delay: 0.25s; }
-        .sidebar-item:nth-child(5) { animation-delay: 0.3s; }
-        .sidebar-item:nth-child(6) { animation-delay: 0.35s; }
-        .sidebar-item:nth-child(7) { animation-delay: 0.4s; }
-        .sidebar-item:nth-child(8) { animation-delay: 0.45s; }
-        .sidebar-item:nth-child(9) { animation-delay: 0.5s; }
-        .sidebar-item:nth-child(10) { animation-delay: 0.55s; }
-        .sidebar-item:nth-child(11) { animation-delay: 0.6s; }
-      `}</style>
+      
     </>
   );
 }

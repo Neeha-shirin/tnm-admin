@@ -397,7 +397,7 @@ export default function Course() {
         cancelText={modalConfig.cancelText}
       />
 
-      <h1 className="text-xl sm:text-2xl font-bold mb-1">
+      <h1 className="text-xl sm:text-3xl font-bold mb-1">
         📂 Category Management
       </h1>
       <p className="text-gray-600 mb-4">

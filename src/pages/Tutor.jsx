@@ -9,9 +9,11 @@ const Tutor = () => {
   const [tutorRequests, setTutorRequests] = useState([]);
   const [rejectedTutors, setRejectedTutors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [pendingSearchTerm, setPendingSearchTerm] = useState("");
+  const [approvedSearchTerm, setApprovedSearchTerm] = useState("");
+  const [rejectedSearchTerm, setRejectedSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(null); // tutor to delete
-
 
   const [selectedTutor, setSelectedTutor] = useState(null); // for tutor details modal
   const [confirmAction, setConfirmAction] = useState({ tutor: null, action: null }); // for approve/reject confirmation
@@ -135,16 +137,18 @@ const Tutor = () => {
   };
 
   const handleDeleteTutor = (tutorId) => {
-  const tutor = rejectedTutors.find((t) => t.id === tutorId);
-  if (!tutor) return;
-  setConfirmDelete(tutor); // open confirmation popup
-};
+    const tutor = rejectedTutors.find((t) => t.id === tutorId);
+    if (!tutor) return;
+    setConfirmDelete(tutor); // open confirmation popup
+  };
 
-
-  const q = searchTerm.toLowerCase();
-  const filterBySearch = (arr) =>
+  // Separate filter functions for each table
+  const filterBySearch = (arr, searchTerm) =>
     arr.filter(
-      (t) => t.name.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q) || t.email.toLowerCase().includes(q)
+      (t) => 
+        t.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        t.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        t.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   return (
@@ -167,62 +171,84 @@ const Tutor = () => {
           ))}
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search tutors by name, subject, email"
-          className="mb-6 w-half px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
         {loading ? (
           <p className="text-center text-gray-600">Loading...</p>
         ) : (
           <>
             {/* Pending Requests Table */}
-            <TutorsTable
-              title="Pending Requests"
-              tutors={filterBySearch(tutorRequests)}
-              variant="requests"
-              onRequestStatusChange={(tutorId, newStatus) => {
-                // Show confirmation popup instead of immediate API call
-                const tutor = tutorRequests.find((t) => t.id === tutorId);
-                if (tutor) setConfirmAction({ tutor, action: newStatus });
-              }}
-              emptyMessage="No tutor requests found."
-              onRowClick={setSelectedTutor}
-            />
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Pending Requests</h2>
+                <input
+                  type="text"
+                  placeholder="Search pending tutors..."
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 w-64"
+                  value={pendingSearchTerm}
+                  onChange={(e) => setPendingSearchTerm(e.target.value)}
+                />
+              </div>
+              <TutorsTable
+                tutors={filterBySearch(tutorRequests, pendingSearchTerm)}
+                variant="requests"
+                onRequestStatusChange={(tutorId, newStatus) => {
+                  const tutor = tutorRequests.find((t) => t.id === tutorId);
+                  if (tutor) setConfirmAction({ tutor, action: newStatus });
+                }}
+                emptyMessage="No tutor requests found."
+                onRowClick={setSelectedTutor}
+              />
+            </div>
 
             {/* Approved Table */}
-            <TutorsTable
-              title="Approved Tutors"
-              tutors={filterBySearch(tutors)}
-              variant="approved"
-              onRequestStatusChange={(tutorId, newStatus) => {
-                const tutor = tutors.find((t) => t.id === tutorId);
-                if (tutor) setConfirmAction({ tutor, action: newStatus });
-              }}
-              onRowClick={setSelectedTutor}
-            />
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Approved Tutors</h2>
+                <input
+                  type="text"
+                  placeholder="Search approved tutors..."
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-64"
+                  value={approvedSearchTerm}
+                  onChange={(e) => setApprovedSearchTerm(e.target.value)}
+                />
+              </div>
+              <TutorsTable
+                tutors={filterBySearch(tutors, approvedSearchTerm)}
+                variant="approved"
+                onRequestStatusChange={(tutorId, newStatus) => {
+                  const tutor = tutors.find((t) => t.id === tutorId);
+                  if (tutor) setConfirmAction({ tutor, action: newStatus });
+                }}
+                onRowClick={setSelectedTutor}
+              />
+            </div>
 
             {/* Rejected Table */}
-            <TutorsTable
-              title="Rejected Tutors"
-              tutors={filterBySearch(rejectedTutors)}
-              variant="rejected"
-              onRequestStatusChange={(tutorId, newStatus) => {
-                const tutor = rejectedTutors.find((t) => t.id === tutorId);
-                if (tutor) setConfirmAction({ tutor, action: newStatus });
-              }}
-              onDeleteTutor={(tutorId) => {
-                const tutor = rejectedTutors.find((t) => t.id === tutorId);
-                if (tutor) setConfirmDelete(tutor); // open delete confirmation popup
-              }}
-              emptyMessage="No rejected tutors found."
-              onRowClick={setSelectedTutor}
-            />
-
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Rejected Tutors</h2>
+                <input
+                  type="text"
+                  placeholder="Search rejected tutors..."
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 w-64"
+                  value={rejectedSearchTerm}
+                  onChange={(e) => setRejectedSearchTerm(e.target.value)}
+                />
+              </div>
+              <TutorsTable
+                tutors={filterBySearch(rejectedTutors, rejectedSearchTerm)}
+                variant="rejected"
+                onRequestStatusChange={(tutorId, newStatus) => {
+                  const tutor = rejectedTutors.find((t) => t.id === tutorId);
+                  if (tutor) setConfirmAction({ tutor, action: newStatus });
+                }}
+                onDeleteTutor={(tutorId) => {
+                  const tutor = rejectedTutors.find((t) => t.id === tutorId);
+                  if (tutor) setConfirmDelete(tutor); // open delete confirmation popup
+                }}
+                emptyMessage="No rejected tutors found."
+                onRowClick={setSelectedTutor}
+              />
+            </div>
           </>
         )}
 
@@ -341,9 +367,7 @@ const Tutor = () => {
           </div>
         )}
 
-
-
-       {/* Delete Confirmation Popup */}
+        {/* Delete Confirmation Popup */}
         {confirmDelete && (
           <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
             <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm relative">
