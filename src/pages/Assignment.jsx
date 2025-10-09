@@ -49,15 +49,14 @@ const TutorAssignTable = () => {
   setAssignMode(true);
 };
 
-
-
-
-  const toggleTutor = (tutorId) => {
-    const id = Number(tutorId); // ensure number
-    setSelectedTutors((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
+const toggleTutor = (tutorId) => {
+  if (tutorId === undefined || tutorId === null) return;
+  const id = Number(tutorId);
+  if (isNaN(id)) return;
+  setSelectedTutors((prev) =>
+    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+  );
+};
 
   const handleSave = async () => {
   if (!selectedStudent?.id) return;
@@ -90,17 +89,18 @@ const TutorAssignTable = () => {
 
     // Update frontend state
     setStudents((prevStudents) =>
-      prevStudents.map((s) =>
-        s.id === studentId
-          ? {
-              ...s,
-              tutors: tutors.filter((t) =>
-                newIds.includes(Number(t.id))
-              ),
-            }
-          : s
-      )
-    );
+  prevStudents.map((s) =>
+    s.id === studentId
+      ? {
+          ...s,
+          tutors: tutors
+            .filter((t) => newIds.includes(Number(t.id)))
+            .map((t) => ({ id: t.id, full_name: t.full_name })), // keep minimal info
+        }
+      : s
+  )
+);
+
 
     setNotification({
       type: "success",
@@ -134,7 +134,7 @@ const TutorAssignTable = () => {
       (t.qualification || "").toLowerCase().includes(tutorSearch.toLowerCase())
   );
 
-  console.log(students[0]?.tutors[0].full_name, "assigned tutors");
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 md:p-6">
@@ -180,7 +180,7 @@ const TutorAssignTable = () => {
         {/* Students Tab */}
         {!loading && activeTab === "students" && (
           <div className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden">
-            <div className="px-4 py-4 md:px-6 md:py-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-emerald-700 to-teal-600">
+            <div className="px-4 py-4 md:px-6 md:py-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-emerald-700 to-green-600">
               <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 md:mb-0 flex items-center">
                 <span className="mr-2">📚</span> Student Directory
               </h2>
@@ -215,6 +215,9 @@ const TutorAssignTable = () => {
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-4 py-3 md:px-6 md:py-3 text-left text-xs md:text-sm font-semibold text-slate-700 uppercase tracking-wider">
+                      S.No
+                    </th>
+                    <th className="px-4 py-3 md:px-6 md:py-3 text-left text-xs md:text-sm font-semibold text-slate-700 uppercase tracking-wider">
                       Student
                     </th>
                     <th className="px-4 py-3 md:px-6 md:py-3 text-left text-xs md:text-sm font-semibold text-slate-700 uppercase tracking-wider">
@@ -227,72 +230,74 @@ const TutorAssignTable = () => {
                 </thead>
 
                 <tbody className="bg-white divide-y divide-slate-100">
-                  {students.length > 0 ? (
-                    students.map((student) => (
-                      <tr
-                        key={student.id}
-                        className="hover:bg-emarald-50 cursor-pointer transition"
-                        onClick={() => handleRowClick(student)}
-                      >
-                        <td className="px-4 py-4 md:px-6 md:py-4 flex items-center space-x-3">
-                          <div className="relative">
-                            <img
-                              src={
-                                student.profile_photo || "/default-profile.png"
-                              }
-                              alt={student.full_name}
-                              className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-green-200"
-                            />
-                            <span className="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                              👤
-                            </span>
-                          </div>
-                          <div>
-                            <div className="font-medium text-slate-800">
-                              {student.full_name || "-"}
+                    {filteredStudents.length > 0 ? (
+                      filteredStudents.map((student, index) => (
+                        <tr
+                          key={student.id}
+                          className="hover:bg-emerald-50 cursor-pointer transition"
+                          onClick={() => handleRowClick(student)}
+                        >
+                          {/* Serial Number */}
+                          <td className="px-4 py-4 md:px-6 md:py-4 text-slate-700">
+                            {index + 1}
+                          </td>
+
+                          {/* Student Info */}
+                          <td className="px-4 py-4 md:px-6 md:py-4 flex items-center space-x-3">
+                            <div className="relative">
+                              <img
+                                src={student.profile_photo || "/default-profile.png"}
+                                alt={student.full_name}
+                                className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-green-200"
+                              />
+                              <span className="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                👤
+                              </span>
                             </div>
-                            {student.category && (
-                              <div className="text-xs text-slate-500">
-                                {student.category}
+                            <div>
+                              <div className="font-medium text-slate-800">
+                                {student.full_name || "-"}
                               </div>
-                            )}
-                          </div>
-                        </td>
+                              {student.category && (
+                                <div className="text-xs text-slate-500">{student.category}</div>
+                              )}
+                            </div>
+                          </td>
 
-                        {/* Assigned Tutors */}
-                        <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
-                          {Array.isArray(student.tutors) &&
-                          student.tutors.length > 0
-                            ? student.tutors.map((s) => s.full_name).join(", ")
-                            : "No students assigned"}
-                        </td>
+                          {/* Assigned Tutors */}
+                          <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
+                            {Array.isArray(student.tutors) && student.tutors.length > 0
+                              ? student.tutors.map((s) => s.full_name || "N/A").join(", ")
+                              : "No tutors assigned"}
+                          </td>
 
-                        <td className="px-4 py-4 md:px-6 md:py-4 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAssignClick(student);
-                            }}
-                            className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg font-medium hover:from-green-700 hover:to-emerald-800 transition text-sm md:text-base"
-                          >
-                            Assign
-                          </button>
+                          {/* Actions */}
+                          <td className="px-4 py-4 md:px-6 md:py-4 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAssignClick(student);
+                              }}
+                              className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg font-medium hover:from-green-700 hover:to-emerald-800 transition text-sm md:text-base"
+                            >
+                              Assign
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="4"
+                          className="px-6 py-8 text-center text-slate-500"
+                        >
+                          {searchTerm
+                            ? "No students match your search"
+                            : "No students found"}
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="3"
-                        className="px-6 py-8 text-center text-slate-500"
-                      >
-                        {searchTerm
-                          ? "No students match your search"
-                          : "No students found"}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
+                    )}
+                  </tbody>
               </table>
             </div>
           </div>
@@ -606,16 +611,11 @@ const TutorAssignTable = () => {
                         className="flex items-start p-3 rounded-lg hover:bg-green-50 transition-colors cursor-pointer"
                       >
                         <input
-                          type="checkbox"
-                          checked={selectedTutors.includes(Number(tutor.id))}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTutors((prev) => [...prev, Number(tutor.id)]);
-                            } else {
-                              setSelectedTutors((prev) => prev.filter((id) => id !== Number(tutor.id)));
-                            }
-                          }}
-                        />
+  type="checkbox"
+  checked={selectedTutors.includes(Number(tutor.id))}
+  onChange={() => toggleTutor(tutor.id)}
+/>
+
 
                         <div className="ml-3 flex-1">
                           <div className="text-slate-800 font-medium flex items-center">
@@ -671,11 +671,13 @@ const TutorAssignTable = () => {
                   </button>
                   <button
                     onClick={handleSave}
-                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-colors"
-                    disabled={selectedTutors.length === 0}
+                    className="px-4 py-2 bg-gradient-to-r from-emerald-500 via-green-600 to-emerald-700 text-white font-semibold rounded-lg shadow-md hover:from-emerald-600 hover:via-green-700 hover:to-emerald-800 transition-all"
+
+                    disabled={!selectedStudent} // allow save even if no tutors are selected
                   >
                     Save Assignments
                   </button>
+
                 </div>
               </motion.div>
             </motion.div>

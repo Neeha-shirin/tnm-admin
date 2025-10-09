@@ -12,81 +12,151 @@ const StudentAssignTable = () => {
   const [activeTab, setActiveTab] = useState("tutors");
 
   const [notification, setNotification] = useState(null);
+  const [oldAssignedIds, setOldAssignedIds] = useState([]);
+
 
   
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+useEffect(() => {
+  const loadData = async () => {
     try {
+      // 1️⃣ Fetch students from API
       const studentsRes = await api.get("/admin/students/");
-      setStudents(Array.isArray(studentsRes.data) ? studentsRes.data : []);
+      const studentsData = Array.isArray(studentsRes.data) ? studentsRes.data : [];
+      setStudents(studentsData);
 
+      // 2️⃣ Fetch tutors from API
       const tutorsRes = await api.get("/admin/tutors/approved/");
-      setTutors(Array.isArray(tutorsRes.data) ? tutorsRes.data : []);
+      let tutorsData = Array.isArray(tutorsRes.data) ? tutorsRes.data : [];
+
+      // 3️⃣ Merge with localStorage to preserve assigned_students
+      const cachedTutors = JSON.parse(localStorage.getItem("tutorsData") || "[]");
+      tutorsData = tutorsData.map(tutor => {
+        const cachedTutor = cachedTutors.find(c => c.id === tutor.id);
+        if (cachedTutor) {
+          tutor.assigned_students = cachedTutor.assigned_students || [];
+        }
+        return tutor;
+      });
+
+      setTutors(tutorsData);
+      localStorage.setItem("tutorsData", JSON.stringify(tutorsData));
+
+      // 4️⃣ Restore last selected tutor
+      // const lastTutor = JSON.parse(localStorage.getItem("selectedTutor"));
+      // if (lastTutor) {
+      //   const tutorInState = tutorsData.find(t => t.id === lastTutor.id) || lastTutor;
+      //   setSelectedTutor(tutorInState);
+
+      //   // Pre-check checkboxes if assignMode was active
+      //   if (lastTutor.assigned_students) {
+      //     setSelectedStudents(lastTutor.assigned_students.map(s => Number(s.id)));
+      //   }
+      // }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load data:", err);
     }
   };
 
-  const openTutorDetails = (tutor) => {
-  if (!tutor || !tutor.id) {
-    alert("Invalid tutor data.");
-    return;
-  }
+  loadData();
+}, []);
 
-  // Get latest tutor info from tutors state to avoid stale assigned_students
-  const tutorInState = tutors.find(t => t.id === tutor.id);
+const openTutorDetails = (tutor) => {
+  if (!tutor || !tutor.id) return;
 
-  setSelectedTutor(tutorInState || tutor);
+  const tutorInState = tutors.find(t => t.id === tutor.id) || tutor;
+
+  setSelectedTutor(tutorInState);
+  localStorage.setItem("selectedTutor", JSON.stringify(tutorInState));
 };
 
 
-  const openAssignStudents = () => {
+
+const openAssignStudents = () => {
   if (!selectedTutor || !selectedTutor.id) return;
 
-  // Use the latest assigned_students from selectedTutor
-  const assignedIds = Array.isArray(selectedTutor.assigned_students)
-    ? selectedTutor.assigned_students.map(s => Number(s.id))
+  // Get latest tutor data from state
+  const tutorInState = tutors.find(t => t.id === selectedTutor.id);
+
+  const assignedIds = Array.isArray(tutorInState?.assigned_students)
+    ? tutorInState.assigned_students.map((s) => Number(s.id))
     : [];
 
-  setSelectedStudents(assignedIds);
+  setOldAssignedIds(assignedIds);       // used for diffing when saving
+  setSelectedStudents(assignedIds);     // ✅ pre-check checkboxes
+  setSelectedTutor(tutorInState);       // make sure modal has latest tutor data
   setAssignMode(true);
 };
 
 
+const toggleStudent = async (studentId) => {
+  if (!selectedTutor || !selectedTutor.id) return;
 
+  const tutorId = Number(selectedTutor.id);
+  const id = Number(studentId);
+  const isAssigned = selectedStudents.includes(id);
 
-  const toggleStudent = (studentId) => {
-  setSelectedStudents((prev) => {
-    const id = Number(studentId);
+  try {
+    // Perform API call
+    await api.post("/admin/manage-assignments/", {
+      tutor_ids: [tutorId],
+      student_ids: [id],
+      action: isAssigned ? "unassign" : "assign",
+    });
 
-    if (prev.includes(id)) {
-      // Remove it
-      return prev.filter((sid) => sid !== id);
-    } else {
-      // Add it
-      return [...prev, id];
-    }
-  });
+    // Update selectedStudents
+    setSelectedStudents((prev) =>
+      isAssigned ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
+
+    // Update tutors state
+    setTutors((prev) =>
+      prev.map((t) => {
+        if (t.id !== tutorId) return t;
+
+        let updatedStudents = t.assigned_students || [];
+        if (isAssigned) {
+          updatedStudents = updatedStudents.filter((s) => Number(s.id) !== id);
+        } else {
+          const student = students.find((s) => Number(s.id) === id);
+          updatedStudents = [...updatedStudents, student];
+        }
+
+        return { ...t, assigned_students: updatedStudents };
+      })
+    );
+
+    // Update selectedTutor for modal
+    setSelectedTutor((prev) => {
+      const updatedStudents = isAssigned
+        ? prev.assigned_students.filter((s) => Number(s.id) !== id)
+        : [...(prev.assigned_students || []), students.find((s) => Number(s.id) === id)];
+
+      return { ...prev, assigned_students: updatedStudents };
+    });
+
+    // Persist to localStorage
+    setTutors((prev) => {
+      localStorage.setItem("tutorsData", JSON.stringify(prev));
+      return prev;
+    });
+  } catch (err) {
+    console.error("Assignment failed:", err);
+    setNotification({ type: "error", message: "Failed to update assignment" });
+    setTimeout(() => setNotification(null), 3000);
+  }
 };
 
-
+// Save all assignments at once
 const handleSave = async () => {
   if (!selectedTutor || !selectedTutor.id) return;
 
   const tutorId = Number(selectedTutor.id);
   const newIds = selectedStudents.map(Number);
+  const oldIds = (oldAssignedIds || []).map(Number);
 
-  const tutorInState = tutors.find(t => t.id === tutorId);
-  const oldIds = Array.isArray(tutorInState?.assigned_students)
-    ? tutorInState.assigned_students.map(s => Number(s.id))
-    : [];
-
-  const toAssign = newIds.filter(id => !oldIds.includes(id));
-  const toUnassign = oldIds.filter(id => !newIds.includes(id));
+  const toAssign = newIds.filter((id) => !oldIds.includes(id));
+  const toUnassign = oldIds.filter((id) => !newIds.includes(id));
 
   try {
     if (toAssign.length > 0) {
@@ -105,37 +175,32 @@ const handleSave = async () => {
       });
     }
 
-    const updatedAssigned = students.filter(s => newIds.includes(Number(s.id)));
+    // Update selectedTutor and tutors state
+    const updatedAssigned = students.filter((s) => newIds.includes(Number(s.id)));
 
-    setTutors(prev =>
-      prev.map(t =>
-        t.id === tutorId ? { ...t, assigned_students: updatedAssigned } : t
-      )
+    setTutors((prev) =>
+      prev.map((t) => (t.id === tutorId ? { ...t, assigned_students: updatedAssigned } : t))
     );
 
-    setSelectedTutor(prev => ({
-      ...prev,
-      assigned_students: updatedAssigned,
-    }));
+    setSelectedTutor((prev) => ({ ...prev, assigned_students: updatedAssigned }));
 
-    setSelectedStudents(newIds); // ✅ keep checkboxes checked
+    // Persist to localStorage
+    setTutors((prev) => {
+      localStorage.setItem("tutorsData", JSON.stringify(prev));
+      return prev;
+    });
 
     setNotification({ type: "success", message: "Assignments updated successfully!" });
     setTimeout(() => setNotification(null), 3000);
 
     setAssignMode(false);
+    setSelectedTutor(null);
   } catch (err) {
-    console.error(err.response?.data || err);
+    console.error("Save assignments failed:", err);
     setNotification({ type: "error", message: "Failed to update assignments" });
     setTimeout(() => setNotification(null), 3000);
   }
 };
-
-
-
-
-
-
 
   const filteredTutors = tutors.filter(
     (t) =>
@@ -199,54 +264,70 @@ const handleSave = async () => {
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-emerald-100">
                 <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Tutor</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Assigned Students</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">Details</th>
-                  </tr>
-                </thead>
+  <tr>
+    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+      S.No
+    </th>
+    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+      Tutor
+    </th>
+    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+      Assigned Students
+    </th>
+    <th className="px-6 py-3 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">
+      Details
+    </th>
+  </tr>
+</thead>
                 <tbody className="bg-white divide-y divide-emerald-100">
-                  {filteredTutors.map((tutor, index) => (
-                    <tr
-                      key={tutor.id ?? index}
-                      className="hover:bg-emerald-50 transition-colors duration-150 cursor-pointer group"
-                      onClick={() => openTutorDetails(tutor)}
-                    >
-                      {/* Profile Photo + Name */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden border border-emerald-200 group-hover:border-emerald-300">
-                            {tutor.profile_image ? (
-                              <img
-                                src={tutor.profile_image}
-                                alt={tutor.full_name}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <i className="fas fa-user text-emerald-500"></i>
-                            )}
-                          </div>
-                          <span className="ml-3 font-medium text-emerald-900">{tutor.full_name || "N/A"}</span>
-                        </div>
-                      </td>
+  {filteredTutors.map((tutor, index) => (
+    <tr
+      key={tutor.id ?? index}
+      className="hover:bg-emerald-50 transition-colors duration-150 cursor-pointer group"
+      onClick={() => openTutorDetails(tutor)}
+    >
+      {/* Serial Number */}
+      <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
+        {index + 1}
+      </td>
 
-                      {/* Assigned Students */}
-                      <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
-                        {Array.isArray(tutor.assigned_students) && tutor.assigned_students.length > 0
-                          ? tutor.assigned_students.map((s) => s.full_name).join(", ")
-                          : "No students assigned"}
-                      </td>
+      {/* Profile Photo + Name */}
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden border border-emerald-200 group-hover:border-emerald-300">
+            {tutor.profile_image ? (
+              <img
+                src={tutor.profile_image}
+                alt={tutor.full_name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <i className="fas fa-user text-emerald-500"></i>
+            )}
+          </div>
+          <span className="ml-3 font-medium text-emerald-900">
+            {tutor.full_name || "N/A"}
+          </span>
+        </div>
+      </td>
 
-                      {/* Action */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <span className="inline-flex items-center px-2.5 py-2 rounded-lg text-l font-medium bg-emerald-800 text-white">
-                          ASSIGN
-                          <i className="fas fa-chevron-right ml-1 text-xs"></i>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+      {/* Assigned Students */}
+      <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
+        {Array.isArray(tutor.assigned_students) && tutor.assigned_students.length > 0
+          ? tutor.assigned_students.map((s) => s.full_name).join(", ")
+          : "No students assigned"}
+      </td>
+
+      {/* Action */}
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+        <span className="inline-flex items-center px-2.5 py-2 rounded-lg text-l font-medium bg-emerald-800 text-white">
+          ASSIGN
+          <i className="fas fa-chevron-right ml-1 text-xs"></i>
+        </span>
+      </td>
+    </tr>
+  ))}
+</tbody>
               </table>
             </div>
           </div>

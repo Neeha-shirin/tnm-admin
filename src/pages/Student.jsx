@@ -70,10 +70,10 @@ const handleDeleteConfirm = async () => {
   try {
     console.log("Deleting student ID:", deletingStudent.id);
 
-    // Call the correct backend endpoint
-    await api.delete(`/admin/students/${deletingStudent.id}/delete/`);
+    // Call the correct backend delete API
+    await api.delete(`/student/${deletingStudent.id}/delete/`);
 
-    // Remove the deleted student from local state
+    // Remove student from local state
     setStudents((prev) => prev.filter((s) => s.id !== deletingStudent.id));
     setDeletingStudent(null);
 
@@ -257,6 +257,9 @@ const handleDeleteConfirm = async () => {
             <table className="min-w-full divide-y divide-emerald-100">
               <thead className="bg-emerald-50">
                 <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-500 uppercase tracking-wider">
+                    S.No
+                  </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Profile</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Full Name</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Email</th>
@@ -267,9 +270,11 @@ const handleDeleteConfirm = async () => {
               </thead>
               <tbody className="bg-white divide-y divide-emerald-100">
                 {isLoading ? (
-                  // Loading skeleton
                   Array.from({ length: 5 }).map((_, index) => (
                     <tr key={index} className="animate-pulse">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-emerald-100 rounded w-6"></div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-12 w-12 rounded-full bg-emerald-100"></div>
                       </td>
@@ -294,7 +299,7 @@ const handleDeleteConfirm = async () => {
                     </tr>
                   ))
                 ) : filteredStudents.length > 0 ? (
-                  filteredStudents.map((student) => (
+                  filteredStudents.map((student, index) => (
                     <motion.tr
                       key={student.id}
                       initial={{ opacity: 0 }}
@@ -306,6 +311,10 @@ const handleDeleteConfirm = async () => {
                         setSelectedStudent(student);
                       }}
                     >
+                      {/* Serial Number */}
+                      <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+
+                      {/* Profile */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden shadow-sm border border-emerald-200">
                           {student.profile_photo ? (
@@ -319,49 +328,47 @@ const handleDeleteConfirm = async () => {
                           )}
                         </div>
                       </td>
+
+                      {/* Full Name */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-emerald-900">{student.full_name}</div>
-                       
                       </td>
+
+                      {/* Email */}
                       <td className="px-6 py-4 whitespace-nowrap text-emerald-700">{student.email}</td>
+
+                      {/* Location */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-emerald-700">
                           {student.city || 'N/A'}, {student.state || 'N/A'}
                         </div>
                       </td>
+
+                      {/* Status */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[student.status] || "bg-gray-100 text-gray-800 border-gray-200"} shadow-sm`}>
                           {statusIcons[student.status]}
                           {student.status}
                         </span>
                       </td>
+
+                      {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setEditingStudent(student)}
-                            className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm border border-emerald-200"
-                            title="Edit student"
-                          >
-                            <i className="fas fa-edit mr-1"></i> Edit
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                        <div className="flex justify-end space-x-2 transition-opacity">
+                          <button
                             onClick={() => setDeletingStudent(student)}
-                            className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm border border-red-200"
+                            className="text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm border border-red-200"
                             title="Delete student"
                           >
                             <i className="fas fa-trash mr-1"></i> Delete
-                          </motion.button>
+                          </button>
                         </div>
                       </td>
                     </motion.tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center">
+                    <td colSpan="7" className="px-6 py-12 text-center">
                       <div className="text-emerald-700 flex flex-col items-center">
                         <i className="fas fa-user-slash text-4xl text-emerald-300 mb-3"></i>
                         <p className="font-medium">No students found</p>

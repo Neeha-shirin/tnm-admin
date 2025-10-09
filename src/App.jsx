@@ -16,6 +16,7 @@ import Blog from "./pages/Blog";
 import User from "./pages/User"
 
 import "./App.css";
+import NotificationsPage from "./pages/NotificationsPage";
 
 export default function App() {
   const location = useLocation();
@@ -133,6 +134,15 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <User />
+                </PrivateRoute>
+              }
+            />
+
+             <Route
+              path="/messages"
+              element={
+                <PrivateRoute>
+                  <NotificationsPage />
                 </PrivateRoute>
               }
             />
