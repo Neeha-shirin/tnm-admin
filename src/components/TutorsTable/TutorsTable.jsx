@@ -35,9 +35,9 @@ const TutorsTable = ({
         <table className="min-w-full text-sm text-left">
           <thead>
             <tr className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+              <th className="px-6 py-3">S.No</th>
               <th className="px-6 py-3">Tutor</th>
-              <th className="px-6 py-3">Qualification</th>
-              <th className="px-6 py-3">Experience</th>
+              <th className="px-6 py-3">Activity</th>
               <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3 text-right">Actions</th>
             </tr>
@@ -51,8 +51,13 @@ const TutorsTable = ({
                   className={`${
                     index % 2 === 0 ? "bg-white" : "bg-gray-50"
                   } hover:bg-indigo-50 transition-colors cursor-pointer`}
-                  onClick={() => onRowClick && onRowClick(tutor)} // Row click opens modal
+                  onClick={() => onRowClick && onRowClick(tutor)}
                 >
+                  {/* Serial Number */}
+                  <td className="px-6 py-4 font-medium text-gray-700">
+                    {index + 1}
+                  </td>
+
                   {/* Tutor Name with Profile */}
                   <td className="px-6 py-4 font-medium text-gray-800 flex items-center gap-3">
                     <img
@@ -63,8 +68,14 @@ const TutorsTable = ({
                     {tutor.name}
                   </td>
 
-                  <td className="px-6 py-4 text-gray-700">{tutor.subject}</td>
-                  <td className="px-6 py-4 text-gray-700">{tutor.experience}</td>
+                  {/* Activity Column */}
+                  <td className="px-6 py-4 text-gray-700">
+                    {tutor.activity || (
+                      <span className="text-gray-400 italic">
+                        No recent activity
+                      </span>
+                    )}
+                  </td>
 
                   {/* Status */}
                   <td className="px-6 py-4">
@@ -79,7 +90,7 @@ const TutorsTable = ({
                           })
                         }
                         className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white shadow-sm focus:ring focus:ring-indigo-200"
-                        onClick={(e) => e.stopPropagation()} // Prevent modal on dropdown click
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <option value="Approved">✅ Approved</option>
                         <option value="Rejected">❌ Rejected</option>
@@ -100,12 +111,12 @@ const TutorsTable = ({
                   </td>
 
                   {/* Actions */}
-                  <td className="px-6 py-4 text-right text-sm font-medium space-x-2">
+                  <td className="px-6 py-4 text-right text-sm font-medium">
                     {variant === "requests" && onRequestStatusChange && (
-                      <>
+                      <div className="flex justify-end gap-2">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // prevent modal
+                            e.stopPropagation();
                             onRequestStatusChange(tutor.id, "Approved");
                           }}
                           className="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1.5 rounded-lg transition"
@@ -114,23 +125,23 @@ const TutorsTable = ({
                         </button>
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // prevent modal
+                            e.stopPropagation();
                             onRequestStatusChange(tutor.id, "Rejected");
                           }}
                           className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg transition"
                         >
                           Reject
                         </button>
-                      </>
+                      </div>
                     )}
 
                     {(variant === "approved" || variant === "rejected") &&
                       onRequestStatusChange && (
-                        <>
+                        <div className="flex justify-end items-center gap-2">
                           {/* Save Icon Button */}
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // prevent modal
+                              e.stopPropagation();
                               onRequestStatusChange(
                                 tutor.id,
                                 localStatus[tutor.id]
@@ -142,11 +153,27 @@ const TutorsTable = ({
                             <Save className="w-4 h-4" />
                           </button>
 
+                          {/* Add to Homepage Checkbox */}
+                          {variant === "approved" && (
+                            <input
+                              type="checkbox"
+                              onClick={(e) => e.stopPropagation()} // prevent modal
+                              onChange={(e) =>
+                                console.log(
+                                  `Add to homepage checkbox changed for tutor ${tutor.id}:`,
+                                  e.target.checked
+                                )
+                              }
+                              className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                              title="Add to Homepage"
+                            />
+                          )}
+
                           {/* Delete Icon Button */}
                           {variant === "rejected" && onDeleteTutor && (
                             <button
                               onClick={(e) => {
-                                e.stopPropagation(); // prevent modal
+                                e.stopPropagation();
                                 onDeleteTutor(tutor.id);
                               }}
                               className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
@@ -155,7 +182,7 @@ const TutorsTable = ({
                               <Trash2 className="w-4 h-4" />
                             </button>
                           )}
-                        </>
+                        </div>
                       )}
                   </td>
                 </tr>

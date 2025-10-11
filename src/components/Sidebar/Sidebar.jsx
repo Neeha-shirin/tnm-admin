@@ -65,6 +65,7 @@ function Sidebar() {
     { path: "/testmonio", icon: HiStar, label: "Testimonials", color: "emerald" },
     { path: "/blog", icon: HiDocumentText, label: "Blog", color: "emerald" },
     { path: "/chat", icon: HiChatAlt2, label: "Messages / Chat", color: "emerald" },
+    { path: "/studentpayment", icon: HiCash, label: "student plan", color: "emerald" },
   ];
 
   const getColorClasses = (color, isActive = false) => {

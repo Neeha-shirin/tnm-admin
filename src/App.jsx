@@ -14,9 +14,9 @@ import StudentAssignTable from "./pages/StudentAssignTable";
 import Testmonio from "./pages/Testmonio";
 import Blog from "./pages/Blog";
 import User from "./pages/User"
-
 import "./App.css";
 import NotificationsPage from "./pages/NotificationsPage";
+import StudentPayment from "./pages/StudentPayment";
 
 export default function App() {
   const location = useLocation();
@@ -126,6 +126,14 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <Assignment />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/studentpayment"
+              element={
+                <PrivateRoute>
+                  <StudentPayment />
                 </PrivateRoute>
               }
             />

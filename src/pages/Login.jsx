@@ -178,15 +178,190 @@
 
 
 
+// import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { motion } from "framer-motion";
+
+// const Login = () => {
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
+
+//   const [loginType, setLoginType] = useState("admin"); // "admin" or "user"
+//   const [email, setEmail] = useState(""); // for admin
+//   const [username, setUsername] = useState(""); // for user
+//   const [password, setPassword] = useState("");
+//   const [error, setError] = useState("");
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setError("");
+//     setLoading(true);
+
+//     const apiUrl =
+//       loginType === "admin"
+//         ? "http://tnm-test-api.dhanwis.com/api/login/"
+//         : "http://tnm-test-api.dhanwis.com/api/username-login/";
+
+//     // Correct body depending on type
+//     const body =
+//       loginType === "admin"
+//         ? { email, password }
+//         : { username, password };
+
+//     try {
+//       const response = await fetch(apiUrl, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(body),
+//       });
+
+//       const data = await response.json();
+
+//       if (!response.ok) {
+//         throw new Error(data.detail || data.message || "Login failed");
+//       }
+
+//       localStorage.setItem("token", data.token);
+//       // localStorage.setItem("role", data.role);
+//       navigate("/"); // Redirect to dashboard
+//     } catch (err) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-100 p-4">
+//       {/* Decorative blobs */}
+//       <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+//       <div className="absolute top-10 right-10 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+//       <div className="absolute bottom-10 left-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 20 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 0.5 }}
+//         className="w-full max-w-md"
+//       >
+//         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+//           {/* Header */}
+//           <div className="bg-gradient-to-r from-emerald-600 to-teal-700 py-6 px-8 text-center">
+//             <h1 className="text-2xl font-bold text-white">
+//               {loginType === "admin" ? "Admin Portal" : "User Login"}
+//             </h1>
+//             <p className="text-emerald-100 mt-1">
+//               {loginType === "admin"
+//                 ? "Sign in to access the dashboard"
+//                 : "Sign in with your username"}
+//             </p>
+//           </div>
+
+//           {/* Login Type Toggle */}
+//           <div className="flex justify-center space-x-4 mt-4">
+//             <label className="flex items-center space-x-2">
+//               <input
+//                 type="radio"
+//                 value="admin"
+//                 checked={loginType === "admin"}
+//                 onChange={() => setLoginType("admin")}
+//                 className="form-radio"
+//               />
+//               <span>Admin</span>
+//             </label>
+//             <label className="flex items-center space-x-2">
+//               <input
+//                 type="radio"
+//                 value="user"
+//                 checked={loginType === "user"}
+//                 onChange={() => setLoginType("user")}
+//                 className="form-radio"
+//               />
+//               <span>User</span>
+//             </label>
+//           </div>
+
+//           <form onSubmit={handleSubmit} className="px-8 py-8">
+//             {error && (
+//               <motion.div
+//                 initial={{ opacity: 0, height: 0 }}
+//                 animate={{ opacity: 1, height: "auto" }}
+//                 className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm"
+//               >
+//                 {error}
+//               </motion.div>
+//             )}
+
+//             {/* Email / Username */}
+//             <div className="mb-5">
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 {loginType === "admin" ? "Email Address" : "Username"}
+//               </label>
+//               <input
+//                 type="text"
+//                 required
+//                 value={loginType === "admin" ? email : username}
+//                 onChange={(e) =>
+//                   loginType === "admin"
+//                     ? setEmail(e.target.value)
+//                     : setUsername(e.target.value)
+//                 }
+//                 placeholder={loginType === "admin" ? "admin@example.com" : "username"}
+//                 className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
+//               />
+//             </div>
+
+//             {/* Password */}
+//             <div className="mb-6">
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Password
+//               </label>
+//               <input
+//                 type="password"
+//                 required
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
+//                 placeholder="Enter your password"
+//                 className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
+//               />
+//             </div>
+
+//             {/* Submit */}
+//             <motion.button
+//               whileHover={{ scale: 1.02 }}
+//               whileTap={{ scale: 0.98 }}
+//               type="submit"
+//               disabled={loading}
+//               className="w-full py-3.5 px-4 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+//             >
+//               {loading ? "Signing in..." : "Sign In"}
+//             </motion.button>
+//           </form>
+
+//           <div className="bg-gray-50 py-4 px-8 text-center border-t border-gray-100">
+//             <p className="text-xs text-gray-600">
+//               Secure access only. Unauthorized attempts are prohibited.
+//             </p>
+//           </div>
+//         </div>
+//       </motion.div>
+//     </div>
+//   );
+// };
+
+// export default Login;
+
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import api from "../api"; // centralized API instance
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [loginType, setLoginType] = useState("admin"); // "admin" or "user"
+  const [loginType, setLoginType] = useState("admin"); // admin or user
   const [email, setEmail] = useState(""); // for admin
   const [username, setUsername] = useState(""); // for user
   const [password, setPassword] = useState("");
@@ -197,35 +372,21 @@ const Login = () => {
     setError("");
     setLoading(true);
 
-    const apiUrl =
-      loginType === "admin"
-        ? "http://tnm-test-api.dhanwis.com/api/login/"
-        : "http://tnm-test-api.dhanwis.com/api/username-login/";
-
-    // Correct body depending on type
-    const body =
-      loginType === "admin"
+    try {
+      const payload = loginType === "admin"
         ? { email, password }
         : { username, password };
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const endpoint = loginType === "admin" ? "/login/" : "/username-login/";
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || data.message || "Login failed");
-      }
+      const { data } = await api.post(endpoint, payload); // centralized API call
 
       localStorage.setItem("token", data.token);
-      // localStorage.setItem("role", data.role);
-      navigate("/"); // Redirect to dashboard
+      // optionally store role: localStorage.setItem("role", data.role);
+
+      navigate("/"); // redirect to dashboard
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.detail || err.response?.data?.message || err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -259,26 +420,18 @@ const Login = () => {
 
           {/* Login Type Toggle */}
           <div className="flex justify-center space-x-4 mt-4">
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                value="admin"
-                checked={loginType === "admin"}
-                onChange={() => setLoginType("admin")}
-                className="form-radio"
-              />
-              <span>Admin</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                value="user"
-                checked={loginType === "user"}
-                onChange={() => setLoginType("user")}
-                className="form-radio"
-              />
-              <span>User</span>
-            </label>
+            {["admin", "user"].map((type) => (
+              <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value={type}
+                  checked={loginType === type}
+                  onChange={() => setLoginType(type)}
+                  className="form-radio"
+                />
+                <span className="capitalize">{type}</span>
+              </label>
+            ))}
           </div>
 
           <form onSubmit={handleSubmit} className="px-8 py-8">
@@ -302,9 +455,7 @@ const Login = () => {
                 required
                 value={loginType === "admin" ? email : username}
                 onChange={(e) =>
-                  loginType === "admin"
-                    ? setEmail(e.target.value)
-                    : setUsername(e.target.value)
+                  loginType === "admin" ? setEmail(e.target.value) : setUsername(e.target.value)
                 }
                 placeholder={loginType === "admin" ? "admin@example.com" : "username"}
                 className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
@@ -313,9 +464,7 @@ const Login = () => {
 
             {/* Password */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <input
                 type="password"
                 required
@@ -350,6 +499,4 @@ const Login = () => {
 };
 
 export default Login;
-
-
 

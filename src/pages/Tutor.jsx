@@ -318,6 +318,18 @@ const Tutor = () => {
                   <p className="text-gray-700">{selectedTutor.description}</p>
                 </div>
               )}
+              {/* Qualification and Experience */}
+              <div className="mb-4 grid grid-cols-2 gap-4">
+                <div>
+                  <strong className="block text-gray-700 mb-1">Qualification:</strong>
+                  <p className="text-gray-700">{selectedTutor.subject || "N/A"}</p>
+                </div>
+                <div>
+                  <strong className="block text-gray-700 mb-1">Experience:</strong>
+                  <p className="text-gray-700">{selectedTutor.experience || "N/A"} years</p>
+                </div>
+              </div>
+
 
               {/* Hourly Rate */}
               {selectedTutor.hourly_rate && (
