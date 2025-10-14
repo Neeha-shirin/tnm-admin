@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Sidebar as FlowbiteSidebar, 
-  SidebarItem, 
-  SidebarItemGroup, 
-  SidebarItems, 
-  Modal, 
-  Button 
+import {
+  Sidebar as FlowbiteSidebar,
+  SidebarItem,
+  SidebarItemGroup,
+  SidebarItems,
+  Modal,
+  Button,
 } from "flowbite-react";
-import { 
+import {
   HiBookOpen,
   HiStar,
   HiChatAlt2,
@@ -22,16 +22,15 @@ import {
   HiUser,
   HiDocumentText,
   HiMenu,
-  HiX
+  HiX,
 } from "react-icons/hi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("");
 
   // Update active item based on current route
@@ -56,30 +55,85 @@ function Sidebar() {
   const menuItems = [
     { path: "/", icon: HiChartBar, label: "Dashboard", color: "emerald" },
     { path: "/tutor", icon: HiAcademicCap, label: "Tutors", color: "emerald" },
-    { path: "/student", icon: HiUserGroup, label: "Students / Leads", color: "emerald" },
-    { path: "/course", icon: HiCollection, label: "Courses & Categories", color: "emerald" },
-    { path: "/assignment", icon: HiBookOpen, label: "Tutor Assigning", color: "emerald" },
-    { path: "/studentassign", icon: HiUserGroup, label: "Student Assigning", color: "emerald" },
-    { path: "/payment", icon: HiCash, label: "Package & Payments", color: "emerald" },
+    {
+      path: "/student",
+      icon: HiUserGroup,
+      label: "Students / Leads",
+      color: "emerald",
+    },
+    {
+      path: "/course",
+      icon: HiCollection,
+      label: "Courses & Categories",
+      color: "emerald",
+    },
+    {
+      path: "/assignment",
+      icon: HiBookOpen,
+      label: "Tutor Assigning",
+      color: "emerald",
+    },
+    {
+      path: "/studentassign",
+      icon: HiUserGroup,
+      label: "Student Assigning",
+      color: "emerald",
+    },
+    {
+      path: "/payment",
+      icon: HiCash,
+      label: "Package & Payments",
+      color: "emerald",
+    },
     { path: "/user", icon: HiUser, label: "Users", color: "emerald" },
-    { path: "/testmonio", icon: HiStar, label: "Testimonials", color: "emerald" },
+    {
+      path: "/testmonio",
+      icon: HiStar,
+      label: "Testimonials",
+      color: "emerald",
+    },
     { path: "/blog", icon: HiDocumentText, label: "Blog", color: "emerald" },
-    { path: "/chat", icon: HiChatAlt2, label: "Messages / Chat", color: "emerald" },
-    { path: "/studentpayment", icon: HiCash, label: "student plan", color: "emerald" },
+
+    {
+      path: "/studentpayment",
+      icon: HiCash,
+      label: "student plan",
+      color: "emerald",
+    },
   ];
 
   const getColorClasses = (color, isActive = false) => {
     const colorMap = {
-      blue: isActive ? "bg-blue-50 text-blue-600 border-blue-200" : "hover:bg-blue-50 hover:text-blue-600",
-      emerald: isActive ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "hover:bg-emerald-50 hover:text-emerald-600",
-      purple: isActive ? "bg-purple-50 text-purple-600 border-purple-200" : "hover:bg-purple-50 hover:text-purple-600",
-      orange: isActive ? "bg-orange-50 text-orange-600 border-orange-200" : "hover:bg-orange-50 hover:text-orange-600",
-      pink: isActive ? "bg-pink-50 text-pink-600 border-pink-200" : "hover:bg-pink-50 hover:text-pink-600",
-      indigo: isActive ? "bg-indigo-50 text-indigo-600 border-indigo-200" : "hover:bg-indigo-50 hover:text-indigo-600",
-      green: isActive ? "bg-green-50 text-green-600 border-green-200" : "hover:bg-green-50 hover:text-green-600",
-      red: isActive ? "bg-red-50 text-red-600 border-red-200" : "hover:bg-red-50 hover:text-red-600",
-      yellow: isActive ? "bg-yellow-50 text-yellow-600 border-yellow-200" : "hover:bg-yellow-50 hover:text-yellow-600",
-      teal: isActive ? "bg-teal-50 text-teal-600 border-teal-200" : "hover:bg-teal-50 hover:text-teal-600",
+      blue: isActive
+        ? "bg-blue-50 text-blue-600 border-blue-200"
+        : "hover:bg-blue-50 hover:text-blue-600",
+      emerald: isActive
+        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+        : "hover:bg-emerald-50 hover:text-emerald-600",
+      purple: isActive
+        ? "bg-purple-50 text-purple-600 border-purple-200"
+        : "hover:bg-purple-50 hover:text-purple-600",
+      orange: isActive
+        ? "bg-orange-50 text-orange-600 border-orange-200"
+        : "hover:bg-orange-50 hover:text-orange-600",
+      pink: isActive
+        ? "bg-pink-50 text-pink-600 border-pink-200"
+        : "hover:bg-pink-50 hover:text-pink-600",
+      indigo: isActive
+        ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+        : "hover:bg-indigo-50 hover:text-indigo-600",
+      green: isActive
+        ? "bg-green-50 text-green-600 border-green-200"
+        : "hover:bg-green-50 hover:text-green-600",
+      red: isActive
+        ? "bg-red-50 text-red-600 border-red-200"
+        : "hover:bg-red-50 hover:text-red-600",
+      yellow: isActive
+        ? "bg-yellow-50 text-yellow-600 border-yellow-200"
+        : "hover:bg-yellow-50 hover:text-yellow-600",
+      teal: isActive
+        ? "bg-teal-50 text-teal-600 border-teal-200"
+        : "hover:bg-teal-50 hover:text-teal-600",
     };
     return colorMap[color] || colorMap.blue;
   };
@@ -87,65 +141,81 @@ function Sidebar() {
   return (
     <>
       {/* Mobile Toggle Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      {/* <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button
           color="light"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 rounded-lg shadow-lg border border-gray-200"
         >
-          {isCollapsed ? <HiX className="w-5 h-5" /> : <HiMenu className="w-5 h-5" />}
+          {isCollapsed ? null : <HiMenu className="w-5 h-5" />}
         </Button>
-      </div>
+      </div> */}
 
       {/* Overlay for mobile */}
-      {isCollapsed && (
-        <div 
+      {isOpen && (
+        <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsCollapsed(false)}
+          onClick={() => onClose(false)}
         />
       )}
 
-      <FlowbiteSidebar 
+      <FlowbiteSidebar
         className={`
           h-[100%] bg-gradient-to-b from-white to-gray-50 shadow-xl border-r border-gray-100
           transition-all duration-300 ease-in-out z-50 fixed lg:static
-          ${isCollapsed ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          ${isCollapsed ? 'w-64' : 'w-64'}
+          ${
+            isOpen
+              ? "translate-x-0 top-0"
+              : "-translate-x-full lg:translate-x-0"
+          }
+          ${isOpen ? "w-64" : "w-64"}
         `}
         aria-label="Admin Sidebar"
       >
         {/* Sidebar Header */}
-        <div className="px-4 py-6 border-b border-gray-100">
+        <div className="px-4 py-6 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
               <HiAcademicCap className="w-6 h-6 text-white" />
             </div>
-            <div className={`flex-1 transition-all duration-300 ${isCollapsed ? 'opacity-100' : 'opacity-100'}`}>
+            <div
+              className={`flex-1 transition-all duration-300 ${
+                isOpen ? "opacity-100" : "opacity-100"
+              }`}
+            >
               <h1 className="text-lg font-bold text-gray-800">Admin</h1>
               <p className="text-xs text-gray-500">Management Portal</p>
             </div>
           </div>
+           <button
+            onClick={onClose}
+            className="lg:hidden"
+          >
+            <HiX className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
 
+       
+
         <SidebarItems>
-          <SidebarItemGroup className="space-y-1 px-2 py-4">
+          <SidebarItemGroup className="space-y-1">
             {menuItems.map((item) => {
               const isActive = activeItem === item.path;
               const IconComponent = item.icon;
-              
+
               return (
-                <SidebarItem 
+                <SidebarItem
                   key={item.path}
                   as={Link}
                   to={item.path}
-                  onClick={() => setIsCollapsed(false)}
+                  onClick={() => onClose(false)}
                   icon={IconComponent}
                   className={`
                     py-3 px-3 rounded-xl transition-all duration-200 font-medium
                     transform hover:scale-[1.02] hover:shadow-sm
                     border-2 border-transparent
                     ${getColorClasses(item.color, isActive)}
-                    ${isActive ? 'shadow-sm scale-[1.02]' : ''}
+                    ${isActive ? "shadow-sm scale-[1.02]" : ""}
                   `}
                 >
                   <span className="flex items-center justify-between w-full">
@@ -158,14 +228,7 @@ function Sidebar() {
               );
             })}
 
-            {/* Reports & Analytics */}
-            <SidebarItem
-              href="#"
-              icon={HiChartBar}
-              className="py-3 px-3 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-200 transform hover:scale-[1.02] font-medium"
-            >
-              Reports & Analytics
-            </SidebarItem>
+            
 
             {/* Logout Button */}
             <div className="pt-4 mt-4 border-t border-gray-100">
@@ -202,10 +265,10 @@ function Sidebar() {
       </FlowbiteSidebar>
 
       {/* Enhanced Logout Confirmation Modal */}
-      <Modal 
-        show={showLogoutModal} 
-        size="md" 
-        popup 
+      <Modal
+        show={showLogoutModal}
+        size="md"
+        popup
         onClose={() => setShowLogoutModal(false)}
         className="backdrop-blur-sm"
       >
@@ -214,25 +277,25 @@ function Sidebar() {
             <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
               <HiLogout className="w-8 h-8 text-red-600 animate-pulse" />
             </div>
-            
+
             <h3 className="mb-2 text-xl font-bold text-gray-800">
               Ready to Leave?
             </h3>
-            
+
             <p className="mb-6 text-gray-600">
               Are you sure you want to log out of your account?
             </p>
-            
+
             <div className="flex justify-center gap-3">
-              <Button 
-                color="light" 
+              <Button
+                color="light"
                 onClick={() => setShowLogoutModal(false)}
                 className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
               >
                 Cancel
               </Button>
-              <Button 
-                color="failure" 
+              <Button
+                color="failure"
                 onClick={handleLogout}
                 className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-700 border border-red-600 rounded-lg hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg"
               >
@@ -245,7 +308,6 @@ function Sidebar() {
       </Modal>
 
       {/* Custom Animation Styles */}
-      
     </>
   );
 }

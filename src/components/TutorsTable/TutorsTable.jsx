@@ -9,16 +9,26 @@ const TutorsTable = ({
   variant,
   emptyMessage = "No data available",
   onRowClick, // new prop for row click (modal)
+  api,
 }) => {
   const [localStatus, setLocalStatus] = useState(
     tutors.reduce((acc, t) => ({ ...acc, [t.id]: t.status }), {})
   );
+  const [addToHomeState, setAddToHomeState] = useState(
+  tutors.reduce((acc, t) => ({ ...acc, [t.id]: t.add_to_home }), {})
+);
 
   useEffect(() => {
     setLocalStatus(
       tutors.reduce((acc, t) => ({ ...acc, [t.id]: t.status }), {})
     );
   }, [tutors]);
+  
+ useEffect(() => {
+  setAddToHomeState(
+    tutors.reduce((acc, t) => ({ ...acc, [t.id]: t.add_to_home }), {})
+  );
+}, [tutors]);
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-6">
@@ -155,19 +165,42 @@ const TutorsTable = ({
 
                           {/* Add to Homepage Checkbox */}
                           {variant === "approved" && (
-                            <input
-                              type="checkbox"
-                              onClick={(e) => e.stopPropagation()} // prevent modal
-                              onChange={(e) =>
-                                console.log(
-                                  `Add to homepage checkbox changed for tutor ${tutor.id}:`,
-                                  e.target.checked
-                                )
+                      <input
+                        type="checkbox"
+                        checked={addToHomeState[tutor.id] || false}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={async (e) => {
+                          const newValue = e.target.checked;
+                          setAddToHomeState((prev) => ({
+                            ...prev,
+                            [tutor.id]: newValue,
+                          }));
+
+                          try {
+                            await api.patch(
+                              `/admin/tutor/${tutor.tutor_id}/update-add-to-home/`,
+                              {
+                                add_to_home: newValue,
                               }
-                              className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                              title="Add to Homepage"
-                            />
-                          )}
+                            );
+                            console.log(
+                              `Tutor ${tutor.tutor_id} add_to_home updated to:`,
+                              newValue
+                            );
+                          } catch (err) {
+                            console.error("Failed to update add_to_home:", err);
+                            alert("Failed to update. Please try again.");
+                            // revert checkbox on failure
+                            setAddToHomeState((prev) => ({
+                              ...prev,
+                              [tutor.tutor_id]: !newValue,
+                            }));
+                          }
+                        }}
+                        className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        title="Add to Homepage"
+                      />
+                    )}
 
                           {/* Delete Icon Button */}
                           {variant === "rejected" && onDeleteTutor && (

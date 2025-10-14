@@ -43,6 +43,7 @@ const Tutor = () => {
             : [Object.values(t.available_days || {}).join(" ")],
           description: t.description || "",
           hourly_rate: t.hourly_rate || "N/A",
+          add_to_home: t.add_to_home || false,
         }));
 
         setTutorRequests(allTutors.filter((t) => t.status === "Pending"));
@@ -50,6 +51,7 @@ const Tutor = () => {
         const approvedRes = await api.get("/admin/tutors/approved/");
         const approvedTutors = approvedRes.data.map((t) => ({
           id: t.id,
+          tutor_id: t.tutor_id,
           name: t.full_name,
           email: t.email,
           mobile_number: t.mobile_number || "N/A",
@@ -64,6 +66,7 @@ const Tutor = () => {
             : [Object.values(t.available_days || {}).join(" ")],
           description: t.description || "",
           hourly_rate: t.hourly_rate || "N/A",
+          add_to_home: t.add_to_home || false,
         }));
         setTutors(approvedTutors);
 
@@ -219,6 +222,7 @@ const Tutor = () => {
                   if (tutor) setConfirmAction({ tutor, action: newStatus });
                 }}
                 onRowClick={setSelectedTutor}
+                api={api}
               />
             </div>
 

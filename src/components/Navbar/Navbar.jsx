@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/tnmlogo-SxopM0UJ.png";
 
-export const UserNavbar = () => {
+export const UserNavbar = ({onMenuClick}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(3); // default count
   const navigate = useNavigate();
@@ -29,6 +29,12 @@ export const UserNavbar = () => {
       rounded
       className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6"
     >
+      <button
+              onClick={onMenuClick}
+              className="p-2 rounded-lg hover:bg-gray-100 transition lg:hidden"
+            >
+              <HiMenu className="h-6 w-6 text-gray-700" />
+            </button>
       {/* Logo Section */}
       <Navbar.Brand href="/" className="flex items-center space-x-3">
         <img
@@ -72,7 +78,7 @@ export const UserNavbar = () => {
         </button>
 
         {/* Mobile Toggle Button */}
-        <Navbar.Toggle
+        {/* <Navbar.Toggle
           onClick={() => setIsOpen(!isOpen)}
           className="p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-300 border border-gray-200 dark:border-gray-700"
           aria-label="Toggle navigation"
@@ -82,7 +88,7 @@ export const UserNavbar = () => {
           ) : (
             <HiMenu className="h-5 w-5 text-gray-700 dark:text-gray-300 transition-transform duration-300" />
           )}
-        </Navbar.Toggle>
+        </Navbar.Toggle> */}
       </div>
 
       {/* Mobile Search Bar */}

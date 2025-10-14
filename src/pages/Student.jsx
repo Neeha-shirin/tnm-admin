@@ -264,7 +264,7 @@ const handleDeleteConfirm = async () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Full Name</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Status</th>
+                 
                   <th className="px-6 py-4 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -344,13 +344,7 @@ const handleDeleteConfirm = async () => {
                         </div>
                       </td>
 
-                      {/* Status */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[student.status] || "bg-gray-100 text-gray-800 border-gray-200"} shadow-sm`}>
-                          {statusIcons[student.status]}
-                          {student.status}
-                        </span>
-                      </td>
+                      
 
                       {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-right">

@@ -17,23 +17,25 @@ import User from "./pages/User"
 import "./App.css";
 import NotificationsPage from "./pages/NotificationsPage";
 import StudentPayment from "./pages/StudentPayment";
+import { useState } from "react";
 
 export default function App() {
   const location = useLocation();
 
   // Check if current route is login
   const isLoginPage = location.pathname === "/login";
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-screen">
       {/* Show navbar only if not on login page */}
-      {!isLoginPage && <UserNavbar />}
+      {!isLoginPage && <UserNavbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />}
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 h-[1000px]">
         {/* Show sidebar only if not on login page */}
         {!isLoginPage && (
-          <div className="w-64 bg-white shadow-md border-r">
-            <Sidebar />
+          <div className="lg:w-64 bg-white shadow-md border-r">
+            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           </div>
         )}
 
