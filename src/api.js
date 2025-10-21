@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-  baseURL: "https://tnm-api.tutor-nearme.com/api",
+  baseURL: "https://api-tnm.tutor-nearme.com//api",
   headers: {
     "Content-Type": "application/json",
   },

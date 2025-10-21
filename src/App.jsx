@@ -14,6 +14,7 @@ import StudentAssignTable from "./pages/StudentAssignTable";
 import Testmonio from "./pages/Testmonio";
 import Blog from "./pages/Blog";
 import User from "./pages/User"
+import Contact from "./pages/Contact"
 import "./App.css";
 import NotificationsPage from "./pages/NotificationsPage";
 import StudentPayment from "./pages/StudentPayment";
@@ -153,6 +154,14 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <NotificationsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <PrivateRoute>
+                  <Contact />
                 </PrivateRoute>
               }
             />
