@@ -167,7 +167,7 @@ const handleDeleteConfirm = async () => {
           className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8"
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-emerald-900 flex items-center">
+            <h1 className="text-3xl md:text-3xl font-bold text-emerald-900 flex items-center">
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-2.5 rounded-xl mr-3 shadow-md">
                 <i className="fas fa-user-graduate"></i>
               </span>

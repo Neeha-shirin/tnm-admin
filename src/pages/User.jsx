@@ -68,11 +68,18 @@ function UserPage() {
   }
 
   const payload = {
-    email: form.email,
-    username: form.username,
-    role: form.role,
-    password: editUserId ? form.password : form.password, // password string, blank allowed on edit
-  };
+  email: form.email,
+  username: form.username,
+  role: form.role,
+};
+
+// ✅ Only send password if creating OR updating with a new password
+if (!editUserId) {
+  payload.password = form.password; // Create user → password required
+} else if (form.password && form.password.trim() !== "") {
+  payload.password = form.password; // Update → only if user typed a new password
+}
+
 
   setLoading(true);
   try {

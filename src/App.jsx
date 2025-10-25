@@ -19,6 +19,10 @@ import "./App.css";
 import NotificationsPage from "./pages/NotificationsPage";
 import StudentPayment from "./pages/StudentPayment";
 import { useState } from "react";
+import Faq from "./pages/Faq";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Refund from "./pages/Refund";
+import Terms from "./pages/Terms";
 
 export default function App() {
   const location = useLocation();
@@ -162,6 +166,41 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <Contact />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/faq"
+              element={
+                <PrivateRoute>
+                  <Faq />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <PrivateRoute>
+                  <PrivacyPolicy />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/refund"
+              element={
+                <PrivateRoute>
+                  <Refund />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/terms"
+              element={
+                <PrivateRoute>
+                  <Terms />
                 </PrivateRoute>
               }
             />

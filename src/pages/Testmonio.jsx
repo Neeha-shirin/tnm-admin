@@ -153,7 +153,7 @@ export default function Testmonio() {
       <div>
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1 p-2">
+          <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-900 to-teal-900 bg-clip-text text-transparent mb-1 p-2">
             Testimonial Manager
           </h1>
           <p className="text-emerald-700 text-xs sm:text-sm">
@@ -166,7 +166,7 @@ export default function Testmonio() {
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-emerald-100 p-4 sm:p-6 md:p-8 mb-12">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-emerald-900 text-center sm:text-left">
+            <h2 className="text-xl sm:text-2xl md:text-2xl font-bold text-emerald-900 text-center sm:text-left">
               {editing ? "✏️ Edit Testimonial" : "➕ Add New Testimonial"}
             </h2>
             {editing && (

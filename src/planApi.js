@@ -6,3 +6,6 @@ export const updatePlan = (id, data) => api.put(`/plans/${id}/update/`, data);
 export const deletePlan = (id) => api.delete(`/plans/${id}/delete/`);
 
 
+
+
+

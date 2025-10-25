@@ -23,6 +23,11 @@ import {
   HiDocumentText,
   HiMenu,
   HiX,
+  HiShieldCheck,
+  HiReceiptRefund,
+  HiQuestionMarkCircle,
+  HiClipboardList,
+
 } from "react-icons/hi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
@@ -100,6 +105,31 @@ function Sidebar({ isOpen, onClose }) {
       label: "student plan",
       color: "emerald",
     },
+    {
+      path: "/faq",
+      icon: HiQuestionMarkCircle,
+      label: "faq",
+      color: "emerald",
+    },
+    {
+      path: "/privacy",
+      icon: HiShieldCheck,
+      label: "Privacy",
+      color: "emerald",
+    },
+    {
+      path: "/terms",
+      icon: HiClipboardList,
+      label: "Terms & Conditions",
+      color: "emerald",
+    },
+    {
+      path: "/refund",
+      icon: HiReceiptRefund,
+      label: "Refund Policy",
+      color: "emerald",
+    },
+    
   ];
 
   const getColorClasses = (color, isActive = false) => {
