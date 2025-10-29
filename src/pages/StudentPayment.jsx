@@ -1,6 +1,7 @@
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../api";
 
 // ✅ Reusable Modal Component with Animation
 const Modal = ({ isOpen, onClose, children, size = "md" }) => {
@@ -8,7 +9,7 @@ const Modal = ({ isOpen, onClose, children, size = "md" }) => {
     sm: "max-w-sm",
     md: "max-w-md",
     lg: "max-w-lg",
-    xl: "max-w-xl"
+    xl: "max-w-xl",
   };
 
   return (
@@ -45,7 +46,6 @@ const Modal = ({ isOpen, onClose, children, size = "md" }) => {
   );
 };
 
-// Stats Card Component
 const StatsCard = ({ icon, title, value, color }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -54,7 +54,13 @@ const StatsCard = ({ icon, title, value, color }) => (
     className={`bg-white rounded-xl shadow-sm border-l-4 ${color} p-6`}
   >
     <div className="flex items-center">
-      <div className={`p-3 rounded-lg ${color.replace('border-l-', 'bg-').replace('-500', '-100')} ${color.replace('border-l-', 'text-').replace('-500', '-600')} mr-4`}>
+      <div
+        className={`p-3 rounded-lg ${color
+          .replace("border-l-", "bg-")
+          .replace("-500", "-100")} ${color
+          .replace("border-l-", "text-")
+          .replace("-500", "-600")} mr-4`}
+      >
         <i className={`${icon} text-xl`}></i>
       </div>
       <div>
@@ -65,7 +71,32 @@ const StatsCard = ({ icon, title, value, color }) => (
   </motion.div>
 );
 
-// Header
+// Input Field Component
+const InputField = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  className = "",
+}) => (
+  <div className={className}>
+    {label && (
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+    )}
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
+    />
+  </div>
+);
+
+// Header Component
 const Header = () => (
   <motion.header
     initial={{ y: -50, opacity: 0 }}
@@ -86,7 +117,7 @@ const Header = () => (
   </motion.header>
 );
 
-// Plans Table
+// Plans Table Component
 const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -102,7 +133,10 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
         Subscription Plans
       </h2>
       <motion.button
-        whileHover={{ scale: 1.05, boxShadow: "0 5px 15px rgba(5, 150, 105, 0.2)" }}
+        whileHover={{
+          scale: 1.05,
+          boxShadow: "0 5px 15px rgba(5, 150, 105, 0.2)",
+        }}
         whileTap={{ scale: 0.95 }}
         onClick={onAddPlan}
         className="bg-emerald-600 text-white px-4 py-2.5 rounded-lg shadow-md hover:bg-emerald-500 flex items-center"
@@ -117,14 +151,13 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
           <tr className="text-left text-gray-600 text-sm uppercase border-b border-gray-200 bg-gray-50">
             <th className="py-4 px-6 font-medium">Plan</th>
             <th className="py-4 px-6 font-medium">Price</th>
-            <th className="py-4 px-6 font-medium">Duration</th>
             <th className="py-4 px-6 font-medium">Description</th>
             <th className="py-4 px-6 font-medium text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           <AnimatePresence>
-            {plans.map((plan, idx) => (
+            {plans.map((plan) => (
               <motion.tr
                 key={plan.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -137,24 +170,26 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
                   <span className="font-medium text-gray-800">{plan.plan}</span>
                 </td>
                 <td className="py-4 px-6">
-                  <span className="font-semibold text-emerald-700">₹{plan.price}</span>
-                </td>
-                <td className="py-4 px-6">
-                  <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-1 rounded-full">
-                    {plan.duration_value} {plan.duration_unit}
+                  <span className="font-semibold text-emerald-700">
+                    ₹{plan.price}
                   </span>
                 </td>
                 <td className="py-4 px-6">
                   <ul className="list-disc list-inside text-gray-600 text-sm">
                     {plan.description.map((point, i) => (
-                      <li key={i} className="mb-1">{point}</li>
+                      <li key={i} className="mb-1">
+                        {point}
+                      </li>
                     ))}
                   </ul>
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex justify-center space-x-2">
                     <motion.button
-                      whileHover={{ scale: 1.1, boxShadow: "0 0 8px rgba(59, 130, 246, 0.4)" }}
+                      whileHover={{
+                        scale: 1.1,
+                        boxShadow: "0 0 8px rgba(59, 130, 246, 0.4)",
+                      }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => onEditPlan(plan)}
                       className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition-colors duration-200"
@@ -162,7 +197,10 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
                       <i className="fas fa-edit"></i>
                     </motion.button>
                     <motion.button
-                      whileHover={{ scale: 1.1, boxShadow: "0 0 8px rgba(239, 68, 68, 0.4)" }}
+                      whileHover={{
+                        scale: 1.1,
+                        boxShadow: "0 0 8px rgba(239, 68, 68, 0.4)",
+                      }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => onDeletePlan(plan)}
                       className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors duration-200"
@@ -180,7 +218,7 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
   </motion.div>
 );
 
-// Payments Table
+// Payments Table Component
 const PaymentsTable = ({ payments }) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -203,7 +241,7 @@ const PaymentsTable = ({ payments }) => (
       <table className="w-full">
         <thead>
           <tr className="text-left text-gray-600 text-sm uppercase border-b border-gray-200 bg-gray-50">
-            <th className="py-4 px-6 font-medium">Tutor</th>
+            <th className="py-4 px-6 font-medium">Student</th>
             <th className="py-4 px-6 font-medium">Plan</th>
             <th className="py-4 px-6 font-medium">Amount</th>
             <th className="py-4 px-6 font-medium">Date</th>
@@ -224,7 +262,7 @@ const PaymentsTable = ({ payments }) => (
                   <div className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                     <i className="fas fa-user text-gray-600"></i>
                   </div>
-                  <span className="font-medium">{pay.tutor_name}</span>
+                  <span className="font-medium">{pay.student_name}</span>
                 </div>
               </td>
               <td className="py-4 px-6">
@@ -232,9 +270,15 @@ const PaymentsTable = ({ payments }) => (
                   {pay.plan_name}
                 </span>
               </td>
-              <td className="py-4 px-6 font-semibold text-gray-800">₹{pay.amount}</td>
+              <td className="py-4 px-6 font-semibold text-gray-800">
+                ₹{pay.amount}
+              </td>
               <td className="py-4 px-6 text-gray-600">
-                {new Date(pay.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {new Date(pay.date).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </td>
               <td className="py-4 px-6">
                 <motion.span
@@ -246,7 +290,11 @@ const PaymentsTable = ({ payments }) => (
                       : "bg-amber-100 text-amber-800"
                   }`}
                 >
-                  <i className={`fas ${pay.status === "paid" ? "fa-check-circle" : "fa-clock"} mr-1`}></i>
+                  <i
+                    className={`fas ${
+                      pay.status === "paid" ? "fa-check-circle" : "fa-clock"
+                    } mr-1`}
+                  ></i>
                   {pay.status.charAt(0).toUpperCase() + pay.status.slice(1)}
                 </motion.span>
               </td>
@@ -258,127 +306,71 @@ const PaymentsTable = ({ payments }) => (
   </motion.div>
 );
 
-// Input Field Component
-const InputField = ({ label, type = "text", value, onChange, placeholder, className = "" }) => (
-  <div className={className}>
-    {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
-    />
-  </div>
-);
-
 // Main Component
 export default function Payment() {
-  // Static plans data
-  const initialPlans = [
-    {
-      id: 1,
-      plan: "Basic",
-      price: 499,
-      duration_value: 1,
-      duration_unit: "month",
-      description: ["Access to basic courses", "Email support", "Limited resources"]
-    },
-    {
-      id: 2,
-      plan: "Pro",
-      price: 1299,
-      duration_value: 3,
-      duration_unit: "months",
-      description: ["All basic features", "Priority support", "Advanced courses", "Download resources"]
-    },
-    {
-      id: 3,
-      plan: "Premium",
-      price: 3999,
-      duration_value: 1,
-      duration_unit: "year",
-      description: ["All pro features", "24/7 dedicated support", "Certification", "Live sessions", "Personal mentor"]
-    }
-  ];
-
-  const [plans, setPlans] = useState(initialPlans);
-  
-  // Static payments data
-  const payments = [
-    { id: 1, tutor_name: "John Doe", plan_name: "Pro", amount: 1299, date: "2025-09-01", status: "paid" },
-    { id: 2, tutor_name: "Jane Smith", plan_name: "Basic", amount: 499, date: "2025-08-28", status: "pending" },
-    { id: 3, tutor_name: "Rahul Kumar", plan_name: "Premium", amount: 3999, date: "2025-08-20", status: "paid" },
-    { id: 4, tutor_name: "Priya Sharma", plan_name: "Pro", amount: 1299, date: "2025-08-15", status: "paid" },
-  ];
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+  const [error, setError] = useState(null);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [newPlan, setNewPlan] = useState({
     plan: "",
     price: "",
-    duration_value: "",
-    duration_unit: "month",
     description: [""],
   });
-
   const [editData, setEditData] = useState({
     plan: "",
     price: "",
-    duration_value: "",
-    duration_unit: "month",
     description: [""],
   });
 
-  // Calculate stats
-  const totalRevenue = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
-  const pendingPayments = payments.filter(p => p.status === 'pending').length;
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    setIsModalOpen(true);
+  };
 
-  // Build dynamic card data
-  const stats = [
-    {
-      icon: "fas fa-wallet",
-      title: "Total Revenue",
-      value: `₹${totalRevenue.toLocaleString("en-IN")}`,
-      color: "border-l-emerald-500",
-    },
-    {
-      icon: "fas fa-users",
-      title: "Active Plans",
-      value: plans.length,
-      color: "border-l-blue-500",
-    },
-    {
-      icon: "fas fa-clock",
-      title: "Pending Payments",
-      value: pendingPayments,
-      color: "border-l-amber-500",
-    },
-  ];
+  // Fetch plans
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setLoadingPlans(true);
+        const res = await api.get("/stud-plans/");
+        setPlans(res.data || []);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load plans");
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+    fetchPlans();
+  }, []);
 
-  const handleAddPlan = () => setIsAddOpen(true);
-
-  const saveNewPlan = () => {
-    if (!newPlan.plan || !newPlan.price || !newPlan.duration_value || !newPlan.duration_unit) {
-      alert("Please fill all required fields");
+  const saveNewPlan = async () => {
+    if (!newPlan.plan || !newPlan.price || !newPlan.description.length) {
+      showAlert("Please fill all required fields");
       return;
     }
-
-    const newPlanObj = {
-      id: plans.length + 1,
+    const payload = {
       plan: newPlan.plan,
       price: parseInt(newPlan.price, 10),
-      duration_value: parseInt(newPlan.duration_value, 10),
-      duration_unit: newPlan.duration_unit,
-      description: newPlan.description.filter(d => d.trim() !== "")
+      description: newPlan.description.filter((d) => d.trim() !== ""),
     };
-
-    setPlans(prev => [...prev, newPlanObj]);
-    setNewPlan({ plan: "", price: "", duration_value: "", duration_unit: "month", description: [""] });
-    setIsAddOpen(false);
+    try {
+      const res = await api.post("/stud-plans/create/", payload);
+      setPlans((prev) => [...prev, res.data]);
+      setNewPlan({ plan: "", price: "", description: [""] });
+      setIsAddOpen(false);
+    } catch (err) {
+      console.error(err);
+      showAlert("Failed to create plan");
+    }
   };
 
   const handleEditPlan = (plan) => {
@@ -386,69 +378,184 @@ export default function Payment() {
     setEditData({
       plan: plan.plan,
       price: plan.price,
-      duration_value: plan.duration_value,
-      duration_unit: plan.duration_unit,
-      description: plan.description || [],
+      description: plan.description || [""],
     });
     setIsEditOpen(true);
   };
 
-  const handleUpdatePlan = () => {
-    if (!editData.plan || !editData.price || !editData.duration_value || !editData.duration_unit) {
-      alert("Please fill all required fields");
+  const handleUpdatePlan = async () => {
+    if (!editData.plan || !editData.price) {
+      showAlert("Please fill all required fields");
       return;
     }
 
-    const updatedPlan = {
-      ...selectedPlan,
+    const payload = {
       plan: editData.plan,
       price: parseInt(editData.price, 10),
-      duration_value: parseInt(editData.duration_value, 10),
-      duration_unit: editData.duration_unit,
-      description: editData.description.filter(d => d.trim() !== "")
+      description: editData.description.filter((d) => d.trim() !== ""),
     };
 
-    setPlans(prev => prev.map(p => p.id === selectedPlan.id ? updatedPlan : p));
-    setIsEditOpen(false);
+    try {
+      // Call backend update API
+      const res = await api.put(
+        `/stud-plans/${selectedPlan.id}/update/`,
+        payload
+      );
+
+      // Update local state with returned data
+      setPlans((prev) =>
+        prev.map((p) => (p.id === selectedPlan.id ? res.data : p))
+      );
+
+      setIsEditOpen(false);
+      showAlert("Plan updated successfully");
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
 
-  const handleDeletePlan = (plan) => {
+  const handleDeletePlan = async (plan) => {
     setSelectedPlan(plan);
     setIsDeleteOpen(true);
   };
 
-  const confirmDelete = () => {
-    setPlans(prev => prev.filter(p => p.id !== selectedPlan.id));
-    setIsDeleteOpen(false);
+  const confirmDelete = async () => {
+    if (!selectedPlan) return;
+
+    try {
+      // Call the backend delete API
+      await api.delete(`/stud-plans/${selectedPlan.id}/delete/`);
+
+      // Update local state
+      setPlans((prev) => prev.filter((p) => p.id !== selectedPlan.id));
+
+      // Close modal
+      setIsDeleteOpen(false);
+    } catch (err) {
+      console.error("Delete plan failed:", err);
+    }
   };
+
+  const [payments, setPayments] = useState([]);
+  const [loadingPayments, setLoadingPayments] = useState(true);
+
+  useEffect(() => {
+    const fetchStudentPayments = async () => {
+      try {
+        setLoadingPayments(true);
+        const res = await api.get("/student-history/");
+        console.log(res.data.histories);
+
+        const data = res.data.histories || [];
+
+        const formatted = data.map((item, index) => {
+          let date = item.created_at;
+
+          // Convert 'DD-MM-YYYY HH:mm' to 'YYYY-MM-DDTHH:mm'
+          if (date) {
+            const [day, month, yearAndTime] = date.split("-");
+            const [year, time] = yearAndTime.split(" ");
+            date = new Date(`${year}-${month}-${day}T${time}:00`);
+          } else {
+            date = new Date();
+          }
+
+          return {
+            id: item.id || index,
+            student_name:
+              item.student_name || item.student?.full_name || "Unknown Tutor",
+            plan_name: item.plan_name || item.student_plan_name || "N/A",
+            amount: item.price || 0,
+            date,
+            status: item.status || "pending",
+          };
+        });
+
+        setPayments(formatted);
+      } catch (err) {
+        console.error("Failed to load student payments:", err);
+        showAlert("Failed to load your payment history");
+      } finally {
+        setLoadingPayments(false);
+      }
+    };
+
+    fetchStudentPayments();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Header />
-      
       <div className="container mx-auto px-4 py-8">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {stats.map((s, i) => (
-            <StatsCard key={i} {...s} />
-          ))}
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatsCard
+            icon="fas fa-list"
+            title="Total Plans"
+            value={plans.length}
+            color="border-l-emerald-500"
+          />
+          <StatsCard
+            icon="fas fa-credit-card"
+            title="Total Payments"
+            value={payments.length}
+            color="border-l-indigo-500"
+          />
+          <StatsCard
+            icon="fas fa-rupee-sign"
+            title="Total Revenue"
+            value={`₹${payments.reduce((sum, p) => sum + (p.amount || 0), 0)}`}
+            color="border-l-yellow-500"
+          />
+          <StatsCard
+            icon="fas fa-users"
+            title="Unique Students"
+            value={
+              new Set(payments.map((p) => p.student_name || "Unknown")).size
+            }
+            color="border-l-pink-500"
+          />
         </div>
 
-        <PlansTable 
-          plans={plans} 
-          onEditPlan={handleEditPlan} 
-          onDeletePlan={handleDeletePlan} 
-          onAddPlan={handleAddPlan} 
-        />
         
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        <PlansTable
+          plans={plans}
+          onEditPlan={handleEditPlan}
+          onDeletePlan={handleDeletePlan}
+          onAddPlan={() => setIsAddOpen(true)}
+        />
         <PaymentsTable payments={payments} />
       </div>
 
+      {/* Alert Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-sm w-full text-center">
+            <p className="mb-4 text-gray-80 text-lg font-semibold">
+              {alertMessage}
+            </p>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="bg-emerald-600 text-white px-4 py-2  rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ✅ Add Plan Modal */}
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} size="lg">
-        <h2 className="text-xl font-semibold mb-2 text-gray-800">Add New Plan</h2>
-        <p className="text-gray-500 text-sm mb-6">Create a new subscription plan for tutors</p>
-        
+        <h2 className="text-xl font-semibold mb-2 text-gray-800">
+          Add New Plan
+        </h2>
+        <p className="text-gray-500 text-sm mb-6">
+          Create a new subscription plan for tutors
+        </p>
+
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
@@ -462,38 +569,18 @@ export default function Payment() {
               label="Price (₹)"
               type="number"
               value={newPlan.price}
-              onChange={(e) => setNewPlan({ ...newPlan, price: e.target.value })}
+              onChange={(e) =>
+                setNewPlan({ ...newPlan, price: e.target.value })
+              }
               placeholder="e.g., 1999"
             />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              label="Duration Value"
-              type="number"
-              value={newPlan.duration_value}
-              onChange={(e) => setNewPlan({ ...newPlan, duration_value: e.target.value })}
-              placeholder="e.g., 3"
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Duration Unit
-              </label>
-              <select
-                value={newPlan.duration_unit}
-                onChange={(e) => setNewPlan({ ...newPlan, duration_unit: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
-              >
-                <option value="day">Day</option>
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-              </select>
-            </div>
           </div>
 
           {/* Bullet point descriptions */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Features
+            </label>
             <div className="space-y-2">
               {newPlan.description.map((desc, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
@@ -516,7 +603,9 @@ export default function Payment() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => {
-                        const updated = newPlan.description.filter((_, i) => i !== idx);
+                        const updated = newPlan.description.filter(
+                          (_, i) => i !== idx
+                        );
                         setNewPlan({ ...newPlan, description: updated });
                       }}
                       className="text-red-500 hover:text-red-700 p-2"
@@ -529,7 +618,12 @@ export default function Payment() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setNewPlan({ ...newPlan, description: [...newPlan.description, ""] })}
+                onClick={() =>
+                  setNewPlan({
+                    ...newPlan,
+                    description: [...newPlan.description, ""],
+                  })
+                }
                 className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center mt-2"
               >
                 <i className="fas fa-plus-circle mr-1"></i>
@@ -548,7 +642,10 @@ export default function Payment() {
               Cancel
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(5, 150, 105, 0.3)" }}
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 5px 15px rgba(5, 150, 105, 0.3)",
+              }}
               whileTap={{ scale: 0.97 }}
               onClick={saveNewPlan}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-colors duration-200 flex items-center"
@@ -558,19 +655,38 @@ export default function Payment() {
             </motion.button>
           </div>
         </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-lg max-w-sm w-full text-center">
+              <p className="mb-4 text-gray-80 text-lg font-semibold">
+                {alertMessage}
+              </p>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-emerald-600 text-white px-4 py-2  rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* ✅ Edit Modal */}
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} size="lg">
         <h2 className="text-xl font-semibold mb-2 text-gray-800">Edit Plan</h2>
-        <p className="text-gray-500 text-sm mb-6">Update the subscription plan details</p>
-        
+        <p className="text-gray-500 text-sm mb-6">
+          Update the subscription plan details
+        </p>
+
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Plan Name"
               value={editData.plan}
-              onChange={(e) => setEditData({ ...editData, plan: e.target.value })}
+              onChange={(e) =>
+                setEditData({ ...editData, plan: e.target.value })
+              }
               placeholder="e.g., Premium Plan"
             />
 
@@ -578,38 +694,18 @@ export default function Payment() {
               label="Price (₹)"
               type="number"
               value={editData.price}
-              onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+              onChange={(e) =>
+                setEditData({ ...editData, price: e.target.value })
+              }
               placeholder="e.g., 1999"
             />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              label="Duration Value"
-              type="number"
-              value={editData.duration_value}
-              onChange={(e) => setEditData({ ...editData, duration_value: e.target.value })}
-              placeholder="e.g., 3"
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Duration Unit
-              </label>
-              <select
-                value={editData.duration_unit}
-                onChange={(e) => setEditData({ ...editData, duration_unit: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
-              >
-                <option value="day">Day</option>
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-              </select>
-            </div>
           </div>
 
           {/* Bullet point descriptions */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Features
+            </label>
             <div className="space-y-2">
               {editData.description.map((desc, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
@@ -632,7 +728,9 @@ export default function Payment() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => {
-                        const updated = editData.description.filter((_, i) => i !== idx);
+                        const updated = editData.description.filter(
+                          (_, i) => i !== idx
+                        );
                         setEditData({ ...editData, description: updated });
                       }}
                       className="text-red-500 hover:text-red-700 p-2"
@@ -645,7 +743,12 @@ export default function Payment() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setEditData({ ...editData, description: [...editData.description, ""] })}
+                onClick={() =>
+                  setEditData({
+                    ...editData,
+                    description: [...editData.description, ""],
+                  })
+                }
                 className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center mt-2"
               >
                 <i className="fas fa-plus-circle mr-1"></i>
@@ -664,7 +767,10 @@ export default function Payment() {
               Cancel
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(5, 150, 105, 0.3)" }}
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 5px 15px rgba(5, 150, 105, 0.3)",
+              }}
               whileTap={{ scale: 0.97 }}
               onClick={handleUpdatePlan}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-colors duration-200 flex items-center"
@@ -682,10 +788,15 @@ export default function Payment() {
           <div className="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <i className="fas fa-exclamation-triangle text-2xl"></i>
           </div>
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Delete Plan</h2>
+          <h2 className="text-xl font-semibold mb-2 text-gray-800">
+            Delete Plan
+          </h2>
           <p className="text-gray-600 mb-6">
             Are you sure you want to delete the{" "}
-            <span className="font-semibold text-red-600">{selectedPlan?.plan}</span> plan? This action cannot be undone.
+            <span className="font-semibold text-red-600">
+              {selectedPlan?.plan}
+            </span>{" "}
+            plan? This action cannot be undone.
           </p>
           <div className="flex justify-center space-x-3">
             <motion.button
@@ -697,7 +808,10 @@ export default function Payment() {
               Cancel
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 5px 15px rgba(239, 68, 68, 0.3)" }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 5px 15px rgba(239, 68, 68, 0.3)",
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={confirmDelete}
               className="px-5 py-2.5 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-colors duration-200 flex items-center"

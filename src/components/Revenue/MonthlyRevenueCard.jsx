@@ -53,11 +53,12 @@ export default function MonthlyRevenueCard() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 w-[100%]">
-      <h2 className="text-lg font-semibold mb-4">Monthly Revenue</h2>
-      <div className="h-64">
-        <Line data={data} options={options} />
-      </div>
-    </div>
+   <div className="bg-white rounded-lg shadow-md p-6 w-full">
+  <h2 className="text-lg font-semibold mb-4">Monthly Revenue</h2>
+  <div className="h-64">
+    <Line data={data} options={options} />
+  </div>
+</div>
+
   );
 }

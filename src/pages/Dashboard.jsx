@@ -44,7 +44,8 @@ export default function Dashboard() {
     <div className="flex flex-col h-screen">
       <div className="flex flex-1 flex-col lg:flex-row">
 
-        <div className="p-4 flex-1 bg-gray-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="p-4 w-full bg-gray-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
           
           {/* ✅ Dynamic Dashboard Counts */}
           <UserCard
@@ -63,20 +64,14 @@ export default function Dashboard() {
             value={pendingTutors.length}
           />
 
-          <div className="col-span-1 sm:col-span-2">
-            <MonthlyRevenueCard />
-          </div>
+         <div className="col-span-full">
+          <MonthlyRevenueCard />
+         </div>
+
+
 
           <div className="col-span-1 flex flex-col gap-4 h-full">
-            <SummaryCard
-              title="sales summary"
-              data={[
-                { label: "total sales", value: "4500" },
-                { label: "new leads ", value: pendingTutors.length },
-                { label: "follow up", value: "4500" },
-                { label: "convented leads", value: "4500" },
-              ]}
-            />
+            
           </div>
         </div>
       </div>
