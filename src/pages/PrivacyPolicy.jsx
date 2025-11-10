@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import api from "../api";
 
 const PrivacyPolicy = () => {
@@ -137,7 +137,11 @@ const PrivacyPolicy = () => {
 
   // Delete
   const handleDelete = async () => {
-    if (!pageId) return;
+    console.log("Deleting Page ID:", pageId);
+    if (!pageId) {
+      showNotification("Cannot delete: page ID not found.", "error");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -341,27 +345,47 @@ const PrivacyPolicy = () => {
                 </div>
 
                 <div className="border-2 border-emerald-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:border-emerald-300">
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={content}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setContent(data);
-                    }}
-                    config={{
+                  <ReactQuill
+                    theme="snow"
+                    value={content}
+                    onChange={(value) => setContent(value)}
+                    modules={{
                       toolbar: [
-                        "heading",
-                        "|",
-                        "bold",
-                        "italic",
-                        "link",
-                        "bulletedList",
-                        "numberedList",
-                        "blockQuote",
-                        "undo",
-                        "redo",
+                        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ script: "sub" }, { script: "super" }],
+                        [{ color: [] }, { background: [] }],
+                        [{ font: [] }],
+                        [{ size: ["small", false, "large", "huge"] }],
+                        [{ align: [] }],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        [{ indent: "-1" }, { indent: "+1" }],
+                        ["blockquote", "code-block"],
+                        ["link", "image", "video"],
+                        ["clean"],
                       ],
                     }}
+                    formats={[
+                      "header",
+                      "font",
+                      "size",
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strike",
+                      "script",
+                      "color",
+                      "background",
+                      "align",
+                      "list",
+                      "bullet",
+                      "indent",
+                      "blockquote",
+                      "code-block",
+                      "link",
+                      "image",
+                      "video",
+                    ]}
                   />
                 </div>
               </div>

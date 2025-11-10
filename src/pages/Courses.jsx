@@ -1,8 +1,9 @@
-
 import { useEffect, useState, useMemo } from "react";
-import * as XLSX from "xlsx"; 
-import api from "../api"; 
+import * as XLSX from "xlsx";
+import api from "../api";
 import StatsCard from "../components/StatsCard";
+
+import { Edit, Pencil, Save } from "lucide-react";
 
 // Toast Notification Component
 const Toast = ({ message, type, onClose }) => {
@@ -14,14 +15,23 @@ const Toast = ({ message, type, onClose }) => {
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const bgColor = type === "success" ? "bg-green-500" : 
-                 type === "error" ? "bg-red-500" : 
-                 type === "warning" ? "bg-yellow-500" : "bg-blue-500";
+  const bgColor =
+    type === "success"
+      ? "bg-green-500"
+      : type === "error"
+      ? "bg-red-500"
+      : type === "warning"
+      ? "bg-yellow-500"
+      : "bg-blue-500";
 
   return (
-    <div className={`fixed top-4 right-4 z-50 transform transition-all duration-500 ease-in-out 
-                    animate-in slide-in-from-right-full fade-in`}>
-      <div className={`${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3`}>
+    <div
+      className={`fixed top-4 right-4 z-50 transform transition-all duration-500 ease-in-out 
+                    animate-in slide-in-from-right-full fade-in`}
+    >
+      <div
+        className={`${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3`}
+      >
         {type === "success" && <span>✅</span>}
         {type === "error" && <span>❌</span>}
         {type === "warning" && <span>⚠️</span>}
@@ -33,16 +43,24 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 // Custom Confirmation Modal Component
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText = "Delete", cancelText = "Cancel" }) => {
+const ConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+}) => {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -51,23 +69,36 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
         onClick={onClose}
       ></div>
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 animate-in fade-in-90 slide-in-from-bottom-10">
         <div className="p-6">
           <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            <svg
+              className="w-6 h-6 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              ></path>
             </svg>
           </div>
-          
-          <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">{title}</h3>
+
+          <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            {title}
+          </h3>
           <p className="text-gray-500 text-sm text-center mb-6">{message}</p>
-          
+
           <div className="flex gap-3 justify-center">
             <button
               onClick={onClose}
@@ -94,8 +125,18 @@ const SearchBar = ({ searchTerm, onSearchChange, resultsCount }) => {
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <svg
+          className="h-4 w-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
       <input
@@ -117,22 +158,38 @@ const SearchBar = ({ searchTerm, onSearchChange, resultsCount }) => {
 };
 
 // Animated Image Upload Component
-const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRemove, addToast }) => {
+const ImageUploadSection = ({
+  categoryId,
+  currentImage,
+  onImageUpload,
+  onImageRemove,
+  addToast,
+}) => {
   const [uploading, setUploading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     if (!validTypes.includes(file.type)) {
-      addToast('Please select a valid image file (JPEG, PNG, GIF, WebP)', 'error');
+      addToast(
+        "Please select a valid image file (JPEG, PNG, GIF, WebP)",
+        "error"
+      );
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      addToast('Image size should be less than 5MB', 'error');
+      addToast("Image size should be less than 5MB", "error");
       return;
     }
 
@@ -140,40 +197,45 @@ const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRe
     try {
       await onImageUpload(categoryId, file);
     } catch (error) {
-      console.error('Image upload failed:', error);
+      console.error("Image upload failed:", error);
     } finally {
       setUploading(false);
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
-  const handleRemoveImage = (e) => {
-    e.stopPropagation();
-    onImageRemove(categoryId);
+  const confirmRemoveImage = async () => {
+    await onImageRemove(categoryId);
+    setShowConfirm(false);
   };
 
   return (
     <div className="flex items-center space-x-2">
       {/* Animated Profile Image Container */}
-      <div 
+      <div
         className="relative group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={`relative transition-all duration-300 ${
-          currentImage ? 'scale-100' : 'scale-90'
-        } ${isHovered ? 'scale-110' : ''}`}>
+        <div
+          className={`relative transition-all duration-300 ${
+            currentImage ? "scale-100" : "scale-90"
+          } ${isHovered ? "scale-110" : ""}`}
+        >
           {/* Profile Image or Placeholder */}
           {currentImage ? (
             <>
-              <img 
-                src={currentImage} 
-                alt="Category" 
+              <img
+                src={`${currentImage}`}
+                alt="Category"
                 className="w-10 h-10 object-cover rounded-full border-2 border-blue-300 shadow-lg transition-all duration-300 group-hover:border-blue-500 group-hover:shadow-xl"
               />
               {/* Animated Remove Button */}
               <button
-                onClick={handleRemoveImage}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowConfirm(true);
+                }}
                 className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110 hover:scale-125 hover:bg-red-600 shadow-lg"
               >
                 ×
@@ -183,15 +245,20 @@ const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRe
             </>
           ) : (
             <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center transition-all duration-300 group-hover:from-blue-100 group-hover:to-blue-200 group-hover:border-blue-400 group-hover:shadow-lg">
-              <svg 
+              <svg
                 className={`w-5 h-5 text-gray-500 transition-all duration-300 group-hover:text-blue-500 group-hover:scale-110 ${
-                  uploading ? 'animate-pulse' : ''
-                }`} 
-                fill="none" 
-                viewBox="0 0 24 24" 
+                  uploading ? "animate-pulse" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
             </div>
           )}
@@ -207,13 +274,13 @@ const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRe
 
       {/* Enhanced Upload Button */}
       <div className="relative">
-        <label 
+        <label
           className={`inline-flex items-center space-x-1 px-3 py-1.5 text-xs font-medium rounded-full border cursor-pointer transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-            uploading 
-              ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white border-blue-500 shadow-lg scale-105' 
+            uploading
+              ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-blue-500 shadow-lg scale-105"
               : currentImage
-              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200 hover:from-green-100 hover:to-emerald-100 hover:text-green-800 hover:border-green-300 hover:shadow-md'
-              : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200 hover:from-blue-100 hover:to-indigo-100 hover:text-blue-800 hover:border-blue-300 hover:shadow-md'
+              ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200 hover:from-green-100 hover:to-emerald-100 hover:text-green-800 hover:border-green-300 hover:shadow-md"
+              : "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200 hover:from-blue-100 hover:to-indigo-100 hover:text-blue-800 hover:border-blue-300 hover:shadow-md"
           }`}
         >
           {uploading ? (
@@ -223,14 +290,31 @@ const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRe
             </>
           ) : (
             <>
-              <svg className={`w-3 h-3 transition-transform duration-300 ${currentImage ? 'rotate-12 scale-110' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className={`w-3 h-3 transition-transform duration-300 ${
+                  currentImage ? "rotate-12 scale-110" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 {currentImage ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
                 )}
               </svg>
-              <span>{currentImage ? 'Change' : 'Upload'}</span>
+              <span>{currentImage ? "Change" : "Upload"}</span>
             </>
           )}
           <input
@@ -242,17 +326,69 @@ const ImageUploadSection = ({ categoryId, currentImage, onImageUpload, onImageRe
           />
         </label>
       </div>
+      {/* Custom Confirmation Modal */}
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Background overlay with blur */}
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => setShowConfirm(false)}
+          ></div>
+
+          {/* Modal container */}
+          <div className="relative bg-white rounded-lg shadow-xl p-6 w-72 sm:w-80 text-center z-10 transform transition-all duration-300 scale-95 animate-[fadeIn_0.3s_ease-out]">
+            {/* Warning icon */}
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <svg
+                className="w-6 h-6 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+
+            {/* Message */}
+            <p className="text-gray-800 text-sm mb-6">
+              Are you sure you want to remove this image?
+            </p>
+
+            {/* Buttons */}
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={confirmRemoveImage}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
+              >
+                Yes, Remove
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Category Card Component
-const CategoryCard = ({ 
-  category, 
-  level = 0, 
-  isSelected, 
-  onToggleSelect, 
-  onAddSubcategory, 
+const CategoryCard = ({
+  category,
+  level = 0,
+  isSelected,
+  onToggleSelect,
+  onAddSubcategory,
   onDelete,
   onImageUpload,
   onImageRemove,
@@ -260,28 +396,81 @@ const CategoryCard = ({
   searchTerm,
   expandedCategories,
   onToggleExpand,
-  addToast
+  addToast,
+  handleAddToHomePage,
+  setCategories,
 }) => {
   const [showChildInput, setShowChildInput] = useState(false);
   const [childName, setChildName] = useState("");
-  
-  const hasChildren = category.subcategories && category.subcategories.length > 0;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(category.name);
+
+  const hasChildren =
+    category.subcategories && category.subcategories.length > 0;
   const isExpanded = expandedCategories.has(category.id);
-  
+
   // Highlight search matches
   const highlightMatch = (text, search) => {
     if (!search) return text;
-    
-    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+    const regex = new RegExp(
+      `(${search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+      "gi"
+    );
     const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
-        <mark key={index} className="bg-yellow-100 text-yellow-800 px-1 rounded">{part}</mark>
+        <mark
+          key={index}
+          className="bg-yellow-100 text-yellow-800 px-1 rounded"
+        >
+          {part}
+        </mark>
       ) : (
         part
       )
     );
+  };
+
+  // --- Save Edited Category Name ---
+  const handleSaveEdit = async (category, editedName) => {
+    if (!editedName.trim()) {
+      addToast("Category name cannot be empty.", "error");
+      return;
+    }
+
+    try {
+      const response = await api.patch(`/category/${category.id}/update/`, {
+        name: editedName,
+      });
+
+      if (response.status === 200) {
+        setCategories((prev) =>
+          prev.map((cat) =>
+            cat.id === category.id
+              ? { ...cat, name: editedName }
+              : {
+                  ...cat,
+                  subcategories: cat.subcategories
+                    ? cat.subcategories.map((sub) =>
+                        sub.id === category.id
+                          ? { ...sub, name: editedName }
+                          : sub
+                      )
+                    : [],
+                }
+          )
+        );
+
+        addToast("Category name updated successfully!", "success");
+      } else {
+        addToast("Failed to update category name.", "error");
+      }
+    } catch (err) {
+      console.error("Error updating category:", err);
+      addToast("An error occurred while updating the name.", "error");
+    }
   };
 
   const getCategoryIcon = (level, hasChildren, isExpanded) => {
@@ -302,12 +491,14 @@ const CategoryCard = ({
   };
 
   return (
-    <div 
+    <div
       className={`bg-white border border-gray-200 rounded-lg transition-all duration-300 hover:shadow-lg ${
-        level > 0 ? 'ml-8' : ''
-      } ${isSelected ? 'ring-2 ring-blue-500 border-blue-300 bg-blue-50 transform scale-[1.02]' : ''} ${
-        category.image ? 'border-l-4 border-l-blue-400' : ''
-      }`}
+        level > 0 ? "ml-8" : ""
+      } ${
+        isSelected
+          ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50 transform scale-[1.02]"
+          : ""
+      } ${category.image ? "border-l-4 border-l-blue-400" : ""}`}
     >
       <div className="p-4">
         <div className="flex items-center justify-between">
@@ -321,35 +512,44 @@ const CategoryCard = ({
                 className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300 transition-all duration-200 hover:scale-110"
               />
             )}
-            
+
             {/* Expand/Collapse button with animation */}
             {hasChildren && (
               <button
                 onClick={() => onToggleExpand(category.id)}
                 className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-300 transform hover:scale-110"
               >
-                <svg 
-                  className={`w-4 h-4 transform transition-all duration-300 ${isExpanded ? 'rotate-90 text-blue-600' : ''}`} 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  className={`w-4 h-4 transform transition-all duration-300 ${
+                    isExpanded ? "rotate-90 text-blue-600" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
             )}
-            
+
             {!hasChildren && <div className="w-6 h-6"></div>}
-            
+
             {/* Animated Category Icon/Image */}
             <div className="flex items-center space-x-3">
-              <div className={`relative transition-all duration-300 transform hover:scale-110 ${
-                category.image ? 'ring-2 ring-blue-200 rounded-full' : ''
-              }`}>
+              <div
+                className={`relative transition-all duration-300 transform hover:scale-110 ${
+                  category.image ? "ring-2 ring-blue-200 rounded-full" : ""
+                }`}
+              >
                 {category.image ? (
-                  <img 
-                    src={category.image} 
-                    alt="Category" 
+                  <img
+                    src={category.image}
+                    alt="Category"
                     className="w-8 h-8 object-cover rounded-full shadow-md"
                   />
                 ) : (
@@ -363,20 +563,68 @@ const CategoryCard = ({
                 )}
               </div>
             </div>
-            
+
             {/* Category Name */}
-            <div className={`${getCategoryStyle(level)} transition-all duration-300 ${
-              category.image ? 'font-semibold' : ''
-            }`}>
-              {searchTerm ? highlightMatch(category.name, searchTerm) : category.name}
+            <div
+              className={`${getCategoryStyle(
+                level
+              )} transition-all duration-300 ${
+                category.image ? "font-semibold" : ""
+              }`}
+            >
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSaveEdit(category, editedName);
+                      setIsEditing(false);
+                    }
+                    if (e.key === "Escape") {
+                      setIsEditing(false);
+                      setEditedName(category.name);
+                    }
+                  }}
+                  className="border px-2 py-1 rounded-md text-sm"
+                  autoFocus
+                />
+              ) : (
+                <span>{category.name}</span>
+              )}
             </div>
-            
+
             {/* Enhanced Child count badge */}
             {hasChildren && (
               <span className="flex-shrink-0 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-xs px-2 py-1 rounded-full border border-blue-200 transition-all duration-300 hover:scale-105 hover:shadow-sm">
                 {category.subcategories.length}
               </span>
             )}
+
+            <div className="flex items-center">
+              <button
+                onClick={() => {
+                  if (isEditing) {
+                    handleSaveEdit(category, editedName);
+                    setIsEditing(false);
+                  } else {
+                    setIsEditing(true);
+                  }
+                }}
+                className={`ml-2  text-yellow-700 p-2 rounded-full  ${
+                  isEditing
+                    ? "bg-blue-200 hover:bg-blue-300"
+                    : "bg-yellow-100 hover:bg-yellow-200"
+                }`}
+              >
+                {isEditing ? (
+                  <Save className="w-4 h-4" />
+                ) : (
+                  <Pencil className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Enhanced Action Buttons */}
@@ -385,21 +633,29 @@ const CategoryCard = ({
               {/* Animated Image Upload Section */}
               <ImageUploadSection
                 categoryId={category.id}
-                currentImage={category.image}
+                currentImage={category.img}
                 onImageUpload={onImageUpload}
                 onImageRemove={onImageRemove}
                 addToast={addToast}
               />
-              
-              
 
               {/* Enhanced Add Sub Button */}
               <button
                 onClick={() => setShowChildInput(!showChildInput)}
                 className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-full hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border border-blue-400"
               >
-                <svg className="w-3 h-3 mr-1.5 transition-transform duration-300 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-3 h-3 mr-1.5 transition-transform duration-300 group-hover:rotate-90"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Add Sub
               </button>
@@ -407,23 +663,36 @@ const CategoryCard = ({
               {/* Enhanced Delete Button */}
               <button
                 onClick={() => onDelete(category.id, category.name)}
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-full hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 border border-red-400"
+                className="p-2 text-white bg-gradient-to-r from-red-500 to-red-600 rounded-full hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 border border-red-400"
               >
-                <svg className="w-3 h-3 mr-1.5 transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  className="w-4 h-4 transition-transform duration-300 hover:rotate-12"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
-                Delete
               </button>
+
               {/* Static Checkbox - Added after upload button */}
               <div className="flex items-center">
                 <input
                   type="checkbox"
+                  checked={!!category.add_to_homepage}
+                  onChange={() =>
+                    handleAddToHomePage(category, !category.add_to_homepage)
+                  }
                   className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-500 transition-all duration-200"
-                  // This is a static checkbox, no functionality attached
                 />
+                <label className="ml-2 text-sm text-gray-600">Home</label>
               </div>
             </div>
-            
           )}
         </div>
 
@@ -481,6 +750,8 @@ const CategoryCard = ({
                 expandedCategories={expandedCategories}
                 onToggleExpand={onToggleExpand}
                 addToast={addToast}
+                handleAddToHomePage={handleAddToHomePage}
+                setCategories={setCategories}
               />
             ))}
           </div>
@@ -496,7 +767,7 @@ export default function Course() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [selectedIds, setSelectedIds] = useState(new Set()); 
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [deleteMode, setDeleteMode] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -505,7 +776,7 @@ export default function Course() {
     message: "",
     onConfirm: () => {},
     confirmText: "Delete",
-    cancelText: "Cancel"
+    cancelText: "Cancel",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState(new Set());
@@ -514,12 +785,121 @@ export default function Course() {
     fetchCategories();
   }, []);
 
+  const handleAddToHomePage = async (category, newValue, isAuto = false) => {
+  // 🧩 Block unchecking parent if subcategories are still checked
+  if (
+    !newValue &&
+    category.subcategories?.some((sub) => sub.add_to_homepage)
+  ) {
+    return;
+  }
+
+  // === Helper: update clicked category ===
+  const updateClicked = (cats) =>
+    cats.map((cat) => {
+      if (cat.id === category.id) {
+        return { ...cat, add_to_homepage: newValue };
+      }
+      if (cat.subcategories?.length > 0) {
+        return {
+          ...cat,
+          subcategories: updateClicked(cat.subcategories),
+        };
+      }
+      return cat;
+    });
+
+  // === Helper: bubble child → parent ===
+  const bubbleUp = (cats) =>
+    cats.map((cat) => {
+      if (cat.subcategories?.length > 0) {
+        const updatedSubs = bubbleUp(cat.subcategories);
+        const anyChecked = updatedSubs.some((s) => s.add_to_homepage);
+        return {
+          ...cat,
+          subcategories: updatedSubs,
+          add_to_homepage: anyChecked || cat.add_to_homepage,
+        };
+      }
+      return cat;
+    });
+
+  // === Helper: enforce global parent-child sanity ===
+  const deepFix = (cats) =>
+    cats.map((cat) => {
+      if (!cat.subcategories?.length) return cat;
+      const subs = deepFix(cat.subcategories);
+      const anyChildChecked = subs.some((s) => s.add_to_homepage);
+      return {
+        ...cat,
+        subcategories: subs,
+        add_to_homepage: anyChildChecked || cat.add_to_homepage,
+      };
+    });
+
+  // === Helper: ensure ancestors true when checking a child ===
+  const ensureAncestorsTrue = (cats, id) => {
+    let found = false;
+    const updated = cats.map((cat) => {
+      if (cat.subcategories?.length > 0) {
+        const [newSubs, foundInChild] = ensureAncestorsTrue(
+          cat.subcategories,
+          id
+        );
+        if (foundInChild) {
+          found = true;
+          return {
+            ...cat,
+            add_to_homepage: true,
+            subcategories: newSubs,
+          };
+        }
+        return { ...cat, subcategories: newSubs };
+      }
+      if (cat.id === id) {
+        found = true;
+      }
+      return cat;
+    });
+    return [updated, found];
+  };
+
+  // ✅ Unified transformation (in safe order)
+  setCategories((prev) => {
+    let updated = updateClicked(prev);
+    if (newValue) {
+      const [withAncestors] = ensureAncestorsTrue(updated, category.id);
+      updated = withAncestors;
+    }
+    updated = bubbleUp(updated);
+    updated = deepFix(updated);
+    return updated;
+  });
+
+  // ===== API call + toast =====
+  if (!isAuto) {
+    try {
+      await api.patch(`/category/${category.id}/update/`, {
+        add_to_homepage: newValue,
+      });
+      addToast(
+        `Category ${newValue ? "added to" : "removed from"} homepage`,
+        "success"
+      );
+    } catch (error) {
+      console.error("Error updating category:", error);
+      addToast("Failed to update homepage status", "error");
+    }
+  }
+};
+
+
   // Calculate statistics
   const stats = useMemo(() => {
     const totalCategories = getAllCategoryIds(categories).length;
     const rootCategories = categories.length;
     const selectedCount = selectedIds.size;
-    
+
     return { totalCategories, rootCategories, selectedCount };
   }, [categories, selectedIds]);
 
@@ -532,13 +912,13 @@ export default function Course() {
   // Add a new toast
   const addToast = (message, type = "info") => {
     const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type }]);
     return id;
   };
 
   // Remove a toast
   const removeToast = (id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   const normalizeCategories = (cats) =>
@@ -557,7 +937,6 @@ export default function Course() {
       const data = Array.isArray(res.data) ? res.data : [];
       setCategories(normalizeCategories(data));
       setSelectedIds(new Set());
-      addToast("Categories loaded successfully", "success");
     } catch (err) {
       console.error("Error fetching categories:", err);
       setError("Couldn't load categories. Check API and token.");
@@ -584,7 +963,10 @@ export default function Course() {
       return res.data;
     } catch (err) {
       console.error("Create category failed:", err.response?.data || err);
-      setError("Creating category failed: " + JSON.stringify(err.response?.data || err.message));
+      setError(
+        "Creating category failed: " +
+          JSON.stringify(err.response?.data || err.message)
+      );
       addToast("Failed to create category", "error");
       return null;
     }
@@ -599,44 +981,70 @@ export default function Course() {
       await fetchCategories();
     } catch (err) {
       console.error("Delete category failed:", err.response?.data || err);
-      setError("Delete failed: " + JSON.stringify(err.response?.data || err.message));
+      setError(
+        "Delete failed: " + JSON.stringify(err.response?.data || err.message)
+      );
       addToast("Failed to delete category", "error");
     }
   }
 
-  // Image upload function
+  // 🔹 Handles upload & instantly updates UI for nested subcategories too
   const handleImageUpload = async (categoryId, file) => {
-    setError("");
     try {
       const formData = new FormData();
-      formData.append("image", file);
-      formData.append("category_id", categoryId);
+      formData.append("img", file);
 
-      const res = await api.post("/category-upload-image/", formData, {
+      const res = await api.patch(`/category/${categoryId}/update/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      const updatedCategory = res.data;
+
+      // ✅ Recursive update for any category/subcategory level
+      const updateImageRecursively = (categories) =>
+        categories.map((cat) => {
+          if (cat.id === categoryId)
+            return { ...cat, image: updatedCategory.image };
+          if (cat.subcategories?.length)
+            return {
+              ...cat,
+              subcategories: updateImageRecursively(cat.subcategories),
+            };
+          return cat;
+        });
+
+      setCategories((prev) => updateImageRecursively(prev));
+
       addToast("Image uploaded successfully", "success");
       await fetchCategories();
-      return res.data;
-    } catch (err) {
-      console.error("Image upload failed:", err.response?.data || err);
-      setError("Image upload failed: " + JSON.stringify(err.response?.data || err.message));
+    } catch (error) {
+      console.error("Image upload failed:", error);
       addToast("Failed to upload image", "error");
-      throw err;
     }
   };
 
-  // Image remove function
+  // 🔹 Handles remove & instantly updates UI
   const handleImageRemove = async (categoryId) => {
-    setError("");
     try {
-      await api.delete(`/category-remove-image/${categoryId}/`);
+      await api.patch(`/category/${categoryId}/update/`, { img: null });
+
+      const updateImageRecursively = (categories) =>
+        categories.map((cat) => {
+          if (cat.id === categoryId) return { ...cat, image: null };
+          if (cat.subcategories?.length)
+            return {
+              ...cat,
+              subcategories: updateImageRecursively(cat.subcategories),
+            };
+          return cat;
+        });
+
+      setCategories((prev) => updateImageRecursively(prev));
+
       addToast("Image removed successfully", "success");
       await fetchCategories();
-    } catch (err) {
-      console.error("Image remove failed:", err.response?.data || err);
-      setError("Image remove failed: " + JSON.stringify(err.response?.data || err.message));
+    } catch (error) {
+      console.error("Image remove failed:", error);
       addToast("Failed to remove image", "error");
     }
   };
@@ -650,16 +1058,18 @@ export default function Course() {
       const matched = [];
       const unmatched = [];
 
-      cats.forEach(cat => {
-        const filteredChildren = cat.subcategories ? filterAndSortCategories(cat.subcategories) : [];
+      cats.forEach((cat) => {
+        const filteredChildren = cat.subcategories
+          ? filterAndSortCategories(cat.subcategories)
+          : [];
         const nameMatch = cat.name.toLowerCase().includes(searchLower);
         const hasMatchingChild = filteredChildren.length > 0;
 
         if (nameMatch || hasMatchingChild) {
-          setExpandedCategories(prev => new Set([...prev, cat.id]));
+          setExpandedCategories((prev) => new Set([...prev, cat.id]));
           const newCat = {
             ...cat,
-            subcategories: filteredChildren
+            subcategories: filteredChildren,
           };
           if (nameMatch) matched.push(newCat);
           else unmatched.push(newCat);
@@ -685,7 +1095,7 @@ export default function Course() {
   // Select All visible categories
   const selectAll = () => {
     const allVisibleIds = getAllCategoryIds(filteredCategories);
-    
+
     if (selectedIds.size === allVisibleIds.length) {
       setSelectedIds(new Set());
     } else {
@@ -694,32 +1104,47 @@ export default function Course() {
   };
 
   // Delete Selected
-  const deleteSelected = async () => {
-    if (selectedIds.size === 0) {
-      addToast("Please select at least one category", "warning");
-      return;
-    }
-    
-    setModalOpen(false);
-    setError("");
-    setLoading(true);
-    try {
-      const deletePromises = Array.from(selectedIds).map((id) =>
-        api.delete(`/category/${id}/delete/`)
-      );
-      await Promise.all(deletePromises);
-      setSelectedIds(new Set());
-      addToast(`Deleted ${selectedIds.size} categories successfully`, "success");
-      await fetchCategories();
-      setDeleteMode(false);
-    } catch (err) {
-      console.error("Bulk delete failed:", err);
-      setError("Bulk delete failed: " + (err.response?.data || err.message));
-      addToast("Failed to delete categories", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const deleteSelected = async () => {
+  if (selectedIds.size === 0) {
+    addToast("Please select at least one category", "warning");
+    return;
+  }
+
+  setModalOpen(false);
+  setError("");
+  setLoading(true);
+
+  try {
+    const ids = Array.from(selectedIds);
+
+    // Run all delete requests in parallel, but safely handle 404s
+    const deletePromises = ids.map((id) =>
+      api.delete(`/category/${id}/delete/`).catch((err) => {
+        if (err.response?.status === 404) {
+          console.warn(`Category ${id} already deleted.`);
+        } else {
+          console.error(`Failed to delete category ${id}:`, err);
+        }
+      })
+    );
+
+    await Promise.allSettled(deletePromises);
+
+    // Clear and refresh
+    setSelectedIds(new Set());
+    addToast(`Deleted ${ids.length} categories successfully`, "success");
+    await fetchCategories();
+    setDeleteMode(false);
+  } catch (err) {
+    console.error("Bulk delete failed:", err);
+    setError("Bulk delete failed: " + (err.response?.data || err.message));
+    addToast("Failed to delete categories", "error");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   // Excel Upload Handler
   const handleExcelUpload = async (e) => {
@@ -734,7 +1159,7 @@ export default function Course() {
       formData.append("file", file);
 
       const res = await api.post("/category-create/", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       console.log("Backend response:", res.data);
@@ -742,7 +1167,9 @@ export default function Course() {
       await fetchCategories();
     } catch (err) {
       console.error("Excel upload failed:", err);
-      setError("Excel upload failed: " + (err.response?.data?.error || err.message));
+      setError(
+        "Excel upload failed: " + (err.response?.data?.error || err.message)
+      );
       addToast("Excel upload failed", "error");
     } finally {
       setUploading(false);
@@ -751,7 +1178,7 @@ export default function Course() {
 
   // Toggle category expansion
   const toggleExpand = (categoryId) => {
-    setExpandedCategories(prev => {
+    setExpandedCategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(categoryId)) {
         newSet.delete(categoryId);
@@ -773,7 +1200,7 @@ export default function Course() {
       title: "Delete Category",
       message: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
       confirmText: "Delete",
-      onConfirm: () => deleteCategory(id, name)
+      onConfirm: () => deleteCategory(id, name),
     });
   };
 
@@ -782,11 +1209,11 @@ export default function Course() {
       {/* Toast Container */}
       <div className="fixed top-4 right-4 z-50 space-y-2">
         {toasts.map((toast) => (
-          <Toast 
-            key={toast.id} 
-            message={toast.message} 
-            type={toast.type} 
-            onClose={() => removeToast(toast.id)} 
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
           />
         ))}
       </div>
@@ -806,14 +1233,22 @@ export default function Course() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Category Management</h1>
-            <p className="text-gray-600 text-sm mt-1">Organize and manage your category hierarchy</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Category Management
+            </h1>
+            <p className="text-gray-600 text-sm mt-1">
+              Organize and manage your category hierarchy
+            </p>
           </div>
           <div className="flex items-center space-x-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              deleteMode ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              {deleteMode ? 'Delete Mode' : 'Edit Mode'}
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                deleteMode
+                  ? "bg-red-100 text-red-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {deleteMode ? "Delete Mode" : "Edit Mode"}
             </span>
           </div>
         </div>
@@ -832,15 +1267,25 @@ export default function Course() {
           value={stats.rootCategories}
           icon="fas fa-folder"
           color="border-l-green-500"
-        />     
+        />
       </div>
 
       {/* Error Display */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-center">
-            <svg className="w-4 h-4 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-4 h-4 mr-2 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span className="text-sm font-medium text-red-700">{error}</span>
           </div>
@@ -849,7 +1294,7 @@ export default function Course() {
 
       {/* Search Bar */}
       <div className="mb-6">
-        <SearchBar 
+        <SearchBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           resultsCount={filteredCategories.length}
@@ -891,19 +1336,43 @@ export default function Course() {
                   disabled={loading}
                   className="inline-flex items-center px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
                   </svg>
                   Refresh
                 </button>
 
-                <label className={`inline-flex items-center px-4 py-2.5 text-sm font-medium rounded-lg border cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  uploading ? 'bg-blue-400 text-white border-blue-400 animate-pulse' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}>
-                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <label
+                  className={`inline-flex items-center px-4 py-2.5 text-sm font-medium rounded-lg border cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    uploading
+                      ? "bg-blue-400 text-white border-blue-400 animate-pulse"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
-                  {uploading ? 'Uploading...' : 'Upload Excel'}
+                  {uploading ? "Uploading..." : "Upload Excel"}
                   <input
                     type="file"
                     accept=".xlsx,.xls"
@@ -918,8 +1387,18 @@ export default function Course() {
                     onClick={() => setDeleteMode(true)}
                     className="inline-flex items-center px-4 py-2.5 bg-white text-red-700 text-sm font-medium rounded-lg border border-red-300 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
                     </svg>
                     Delete Mode
                   </button>
@@ -931,10 +1410,23 @@ export default function Course() {
                   onClick={selectAll}
                   className="inline-flex items-center px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
-                  {selectedIds.size === getAllCategoryIds(filteredCategories).length ? 'Deselect All' : 'Select All'}
+                  {selectedIds.size ===
+                  getAllCategoryIds(filteredCategories).length
+                    ? "Deselect All"
+                    : "Select All"}
                 </button>
 
                 <button
@@ -943,7 +1435,7 @@ export default function Course() {
                       title: "Delete Categories",
                       message: `Are you sure you want to delete ${selectedIds.size} categories? This action cannot be undone.`,
                       confirmText: `Delete ${selectedIds.size} Categories`,
-                      onConfirm: deleteSelected
+                      onConfirm: deleteSelected,
                     });
                   }}
                   disabled={loading || selectedIds.size === 0}
@@ -978,21 +1470,32 @@ export default function Course() {
           </div>
         ) : filteredCategories.length === 0 ? (
           <div className="text-center p-12">
-            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="w-12 h-12 text-gray-300 mx-auto mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <h3 className="text-sm font-medium text-gray-900 mb-1">
-              {searchTerm ? 'No categories found' : 'No categories yet'}
+              {searchTerm ? "No categories found" : "No categories yet"}
             </h3>
             <p className="text-gray-500 text-xs mb-4">
-              {searchTerm 
-                ? 'Try adjusting your search terms' 
-                : 'Get started by creating your first root category'
-              }
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Get started by creating your first root category"}
             </p>
             {!searchTerm && !deleteMode && (
               <button
-                onClick={() => document.querySelector('input[placeholder*="root"]')?.focus()}
+                onClick={() =>
+                  document.querySelector('input[placeholder*="root"]')?.focus()
+                }
                 className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
               >
                 Create First Category
@@ -1017,6 +1520,8 @@ export default function Course() {
                 expandedCategories={expandedCategories}
                 onToggleExpand={toggleExpand}
                 addToast={addToast}
+                handleAddToHomePage={handleAddToHomePage}
+                setCategories={setCategories}
               />
             ))}
           </div>
@@ -1029,7 +1534,7 @@ export default function Course() {
 // Helper function to get all category IDs
 function getAllCategoryIds(categories) {
   let ids = [];
-  categories.forEach(cat => {
+  categories.forEach((cat) => {
     ids.push(cat.id);
     if (cat.subcategories) {
       ids = ids.concat(getAllCategoryIds(cat.subcategories));

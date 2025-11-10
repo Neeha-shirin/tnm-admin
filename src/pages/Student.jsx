@@ -11,6 +11,10 @@ const Student = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // 👈 how many students to show per page
+
 
   // Fetch students from backend
   useEffect(() => {
@@ -77,7 +81,7 @@ const handleDeleteConfirm = async () => {
     setStudents((prev) => prev.filter((s) => s.id !== deletingStudent.id));
     setDeletingStudent(null);
 
-    alert("Student deleted successfully!");
+   
   } catch (err) {
     console.error("Error deleting student:", err.response?.data || err.message);
     alert(`Delete failed: ${err.response?.data?.detail || err.message}`);
@@ -99,6 +103,11 @@ const handleDeleteConfirm = async () => {
       : student.categories?.toLowerCase()
     ).includes(searchTerm.toLowerCase())
   );
+    const paginatedStudents = filteredStudents.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
 
   // Status colors and icons
   const statusColors = {
@@ -107,11 +116,7 @@ const handleDeleteConfirm = async () => {
     "On Leave": "bg-amber-100 text-amber-800 border-amber-200",
   };
 
-  const statusIcons = {
-    Active: <i className="fas fa-check-circle mr-1"></i>,
-    Inactive: <i className="fas fa-times-circle mr-1"></i>,
-    "On Leave": <i className="fas fa-pause-circle mr-1"></i>,
-  };
+  
 
   // Modal component
   const Modal = ({ isOpen, onClose, children, size = "md" }) => {
@@ -186,12 +191,7 @@ const handleDeleteConfirm = async () => {
               icon="fas fa-users"
               color="border-l-emerald-500"
             />
-            <StatsCard
-              title="Active Students"
-              value={students.filter((s) => s.status === "Active").length}
-              icon="fas fa-user-check"
-              color="border-l-green-500"
-            />
+            
             <StatsCard
               title="Courses"
               value={8} 
@@ -254,128 +254,157 @@ const handleDeleteConfirm = async () => {
             </h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-emerald-100">
-              <thead className="bg-emerald-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-500 uppercase tracking-wider">
-                    S.No
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Profile</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Full Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">Location</th>
-                 
-                  <th className="px-6 py-4 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-emerald-100">
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="animate-pulse">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-emerald-100 rounded w-6"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-12 w-12 rounded-full bg-emerald-100"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-emerald-100 rounded w-32"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-emerald-100 rounded w-40"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-emerald-100 rounded w-24"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-6 bg-emerald-100 rounded-full w-16"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex justify-end space-x-2">
-                          <div className="h-8 bg-emerald-100 rounded-lg w-16"></div>
-                          <div className="h-8 bg-emerald-100 rounded-lg w-16"></div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : filteredStudents.length > 0 ? (
-                  filteredStudents.map((student, index) => (
-                    <motion.tr
-                      key={student.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="hover:bg-emerald-50/50 transition-colors cursor-pointer group"
-                      onClick={(e) => {
-                        if (e.target.closest("button")) return;
-                        setSelectedStudent(student);
-                      }}
-                    >
-                      {/* Serial Number */}
-                      <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+           <table className="min-w-full divide-y divide-emerald-100">
+  <thead className="bg-emerald-50">
+    <tr>
+      <th className="px-6 py-4 text-center text-xs font-medium text-emerald-500 uppercase tracking-wider">
+        S.No
+      </th>
+      <th className="px-6 py-4 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider">
+        Profile
+      </th>
+      <th className="px-6 py-4 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider">
+        Full Name
+      </th>
+      <th className="px-6 py-4 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider">
+        Email
+      </th>
+      <th className="px-6 py-4 text-center text-xs font-medium text-emerald-700 uppercase tracking-wider">
+        Location
+      </th>
+      <th className="px-6 py-4 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">
+        Actions
+      </th>
+    </tr>
+  </thead>
 
-                      {/* Profile */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden shadow-sm border border-emerald-200">
-                          {student.profile_photo ? (
-                            <img
-                              src={student.profile_photo}
-                              alt={student.full_name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <i className="fas fa-user text-emerald-500"></i>
-                          )}
-                        </div>
-                      </td>
+  <tbody className="bg-white divide-y divide-emerald-100">
+    {isLoading ? (
+      Array.from({ length: 5 }).map((_, index) => (
+        <tr key={index} className="animate-pulse text-center">
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-emerald-100 rounded w-6 mx-auto"></div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-12 w-12 rounded-full bg-emerald-100 mx-auto"></div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-emerald-100 rounded w-32 mx-auto"></div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-emerald-100 rounded w-40 mx-auto"></div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-emerald-100 rounded w-24 mx-auto"></div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-right">
+            <div className="flex justify-end space-x-2">
+              <div className="h-8 bg-emerald-100 rounded-lg w-16"></div>
+              <div className="h-8 bg-emerald-100 rounded-lg w-16"></div>
+            </div>
+          </td>
+        </tr>
+      ))
+    ) : filteredStudents.length > 0 ? (
+      paginatedStudents.map((student, index) => (
+        <motion.tr
+          key={student.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="hover:bg-emerald-50/50 transition-colors cursor-pointer group text-center"
+          onClick={(e) => {
+            if (e.target.closest("button")) return;
+            setSelectedStudent(student);
+          }}
+        >
+          {/* S.No */}
+          <td className="px-6 py-4 whitespace-nowrap">
+            {(currentPage - 1) * itemsPerPage + index + 1}
+          </td>
 
-                      {/* Full Name */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-emerald-900">{student.full_name}</div>
-                      </td>
+          {/* Profile */}
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden shadow-sm border border-emerald-200 mx-auto">
+              {student.profile_photo ? (
+                <img
+                  src={student.profile_photo}
+                  alt={student.full_name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <i className="fas fa-user text-emerald-500"></i>
+              )}
+            </div>
+          </td>
 
-                      {/* Email */}
-                      <td className="px-6 py-4 whitespace-nowrap text-emerald-700">{student.email}</td>
+          {/* Full Name */}
+          <td className="px-6 py-4 whitespace-nowrap font-medium text-emerald-900">
+            {student.full_name}
+          </td>
 
-                      {/* Location */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-emerald-700">
-                          {student.city || 'N/A'}, {student.state || 'N/A'}
-                        </div>
-                      </td>
+          {/* Email */}
+          <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
+            {student.email}
+          </td>
 
-                      
+          {/* Location */}
+          <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
+            {student.city || "N/A"}, {student.state || "N/A"}
+          </td>
 
-                      {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex justify-end space-x-2 transition-opacity">
-                          <button
-                            onClick={() => setDeletingStudent(student)}
-                            className="text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm border border-red-200"
-                            title="Delete student"
-                          >
-                            <i className="fas fa-trash mr-1"></i> Delete
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
-                      <div className="text-emerald-700 flex flex-col items-center">
-                        <i className="fas fa-user-slash text-4xl text-emerald-300 mb-3"></i>
-                        <p className="font-medium">No students found</p>
-                        <p className="text-sm mt-1 text-emerald-500">
-                          {searchTerm ? 'Try adjusting your search terms' : 'Add your first student to get started'}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          {/* Actions (keep right-aligned) */}
+          <td className="px-6 py-4 whitespace-nowrap text-right">
+            <div className="flex justify-end space-x-2 transition-opacity">
+              <button
+                onClick={() => setDeletingStudent(student)}
+                className="text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm border border-red-200"
+                title="Delete student"
+              >
+                <i className="fas fa-trash mr-1"></i> Delete
+              </button>
+            </div>
+          </td>
+        </motion.tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="7" className="px-6 py-12 text-center">
+          <div className="text-emerald-700 flex flex-col items-center">
+            <i className="fas fa-user-slash text-4xl text-emerald-300 mb-3"></i>
+            <p className="font-medium">No students found</p>
+            <p className="text-sm mt-1 text-emerald-500">
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Add your first student to get started"}
+            </p>
           </div>
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
+          </div>
+          {/* Pagination */}
+{filteredStudents.length > itemsPerPage && (
+  <div className="flex justify-center items-center gap-2 p-6 bg-white border-t border-emerald-100">
+    {Array.from({ length: Math.ceil(filteredStudents.length / itemsPerPage) }, (_, i) => (
+      <button
+        key={i}
+        onClick={() => setCurrentPage(i + 1)}
+        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+          currentPage === i + 1
+            ? "bg-emerald-600 text-white shadow-md"
+            : "bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+        }`}
+      >
+        {i + 1}
+      </button>
+    ))}
+  </div>
+)}
+
         </motion.div>
 
         {/* Detail Card Modal */}
@@ -435,17 +464,6 @@ const handleDeleteConfirm = async () => {
                   }
                 </ul>
               </div>
-
-
-
-              <div className="md:col-span-2 bg-white p-4 rounded-xl shadow-sm border border-emerald-100">
-                <div className="text-xs text-emerald-500 font-medium mb-1">Status</div>
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[selectedStudent.status] || "bg-gray-100 text-gray-800"} shadow-sm`}>
-                  {statusIcons[selectedStudent.status]}
-                  {selectedStudent.status}
-                </span>
-              </div>
-
               </div>
               
               <div className="flex justify-end mt-6 pt-4 border-t border-emerald-100">

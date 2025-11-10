@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { FiTrash2, FiEdit, FiCheckCircle, FiXCircle, FiPlus, FiFileText, FiImage } from "react-icons/fi";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import {
+  FiTrash2,
+  FiEdit,
+  FiCheckCircle,
+  FiXCircle,
+  FiPlus,
+  FiFileText,
+  FiImage,
+} from "react-icons/fi";
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
@@ -26,7 +34,7 @@ export default function Blog() {
     try {
       setLoading(true);
       const { data } = await api.get("/blogs/");
-      const mappedBlogs = data.map(b => ({
+      const mappedBlogs = data.map((b) => ({
         id: b.id,
         title: b.title,
         description: b.body,
@@ -47,17 +55,17 @@ export default function Blog() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    
+
     if (name === "photo" && files && files[0]) {
       const file = files[0];
-      setForm(prev => ({ ...prev, photo: file }));
-      
+      setForm((prev) => ({ ...prev, photo: file }));
+
       // Create image preview
       const reader = new FileReader();
       reader.onload = (e) => setImagePreview(e.target.result);
       reader.readAsDataURL(file);
     } else {
-      setForm(prev => ({ ...prev, [name]: value }));
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -95,15 +103,15 @@ export default function Blog() {
   };
 
   const handleEdit = (blog) => {
-    setForm({ 
-      id: blog.id, 
-      title: blog.title, 
-      description: blog.description, 
-      photo: null 
+    setForm({
+      id: blog.id,
+      title: blog.title,
+      description: blog.description,
+      photo: null,
     });
     setImagePreview(blog.photo);
     setEditing(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const resetForm = () => {
@@ -116,7 +124,7 @@ export default function Blog() {
     try {
       setLoading(true);
       await api.delete(`/blogs/${deleteModal.id}/delete/`);
-      setBlogs(prev => prev.filter(b => b.id !== deleteModal.id));
+      setBlogs((prev) => prev.filter((b) => b.id !== deleteModal.id));
       setDeleteModal({ open: false, id: null });
     } catch (err) {
       console.error(err);
@@ -140,11 +148,12 @@ export default function Blog() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-900 to-teal-900 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-900 to-teal-900 bg-clip-text text-transparent mb-4 p-5">
             Blog Management
           </h1>
           <p className="text-emerald-700 text-lg max-w-3xl mx-auto">
-            Create, edit, and manage your blog posts with our intuitive editor. Share your stories with the world.
+            Create, edit, and manage your blog posts with our intuitive editor.
+            Share your stories with the world.
           </p>
         </div>
 
@@ -156,7 +165,7 @@ export default function Blog() {
               <p className="font-semibold">Error</p>
               <p>{error}</p>
             </div>
-            <button 
+            <button
               onClick={() => setError(null)}
               className="ml-auto text-red-500 hover:text-red-700"
             >
@@ -187,7 +196,7 @@ export default function Blog() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
               {/* Left Column - Basic Info */}
               <div className="space-y-6">
                 <div>
@@ -219,7 +228,7 @@ export default function Blog() {
                         className="w-full px-4 py-3 border-2 border-dashed border-emerald-200 rounded-xl focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                       />
                     </div>
-                    
+
                     {(imagePreview || form.photo) && (
                       <div className="relative group">
                         <img
@@ -231,7 +240,7 @@ export default function Blog() {
                           type="button"
                           onClick={() => {
                             setImagePreview(null);
-                            setForm(prev => ({ ...prev, photo: null }));
+                            setForm((prev) => ({ ...prev, photo: null }));
                           }}
                           className="absolute top-2 right-2 p-2 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         >
@@ -249,16 +258,51 @@ export default function Blog() {
                   Blog Content
                 </label>
                 <div className="border-2 border-emerald-200 rounded-xl overflow-hidden focus-within:border-emerald-400 transition-all duration-200">
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={form.description}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setForm(prev => ({ ...prev, description: data }));
+                  <ReactQuill
+                    theme="snow"
+                    value={form.description}
+                    onChange={(value) =>
+                      setForm((prev) => ({ ...prev, description: value }))
+                    }
+                    modules={{
+                      toolbar: {
+                        container: [
+                          [{ header: [1, 2, 3, 4, 5, 6, false] }], // Headings
+                          ["bold", "italic", "underline", "strike"], // Basic styles
+                          [{ script: "sub" }, { script: "super" }], // Sub/super script
+                          [{ color: [] }, { background: [] }], // Text & background color
+                          [{ font: [] }], // Font family
+                          [{ size: ["small", false, "large", "huge"] }], // Font size
+                          [{ align: [] }], // Alignment
+                          [{ list: "ordered" }, { list: "bullet" }], // Lists
+                          [{ indent: "-1" }, { indent: "+1" }], // Indent
+                          ["blockquote", "code-block"], // Quote + code block
+                          ["link", "image", "video"], // Media
+                          ["clean"], // Remove formatting
+                        ],
+                      },
                     }}
-                    config={{
-                      toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
-                    }}
+                    formats={[
+                      "header",
+                      "font",
+                      "size",
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strike",
+                      "script",
+                      "color",
+                      "background",
+                      "align",
+                      "list",
+                      "bullet",
+                      "indent",
+                      "blockquote",
+                      "code-block",
+                      "link",
+                      "image",
+                      "video",
+                    ]}
                   />
                 </div>
               </div>
@@ -279,7 +323,9 @@ export default function Blog() {
                 ) : (
                   <>
                     <FiFileText size={20} />
-                    <span>{editing ? "Update Blog Post" : "Publish Blog Post"}</span>
+                    <span>
+                      {editing ? "Update Blog Post" : "Publish Blog Post"}
+                    </span>
                   </>
                 )}
               </button>
@@ -294,17 +340,22 @@ export default function Blog() {
               <div className="p-2 bg-emerald-100 rounded-xl">
                 <FiImage className="text-emerald-600 text-2xl" />
               </div>
-              <h2 className="text-3xl font-bold text-emerald-900">Your Blog Posts</h2>
+              <h2 className="text-3xl font-bold text-emerald-900">
+                Your Blog Posts
+              </h2>
             </div>
             <span className="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-semibold">
-              {blogs.length} {blogs.length === 1 ? 'post' : 'posts'}
+              {blogs.length} {blogs.length === 1 ? "post" : "posts"}
             </span>
           </div>
 
           {loading && blogs.length === 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl shadow-lg p-6 animate-pulse"
+                >
                   <div className="w-full h-48 bg-emerald-200 rounded-xl mb-4"></div>
                   <div className="h-4 bg-emerald-200 rounded w-3/4 mb-3"></div>
                   <div className="space-y-2">
@@ -318,10 +369,14 @@ export default function Blog() {
           ) : blogs.length === 0 ? (
             <div className="text-center py-16 bg-white/80 rounded-3xl shadow-lg">
               <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold text-emerald-800 mb-2">No blog posts yet</h3>
-              <p className="text-emerald-600 mb-6">Start writing your first blog post using the form above!</p>
+              <h3 className="text-xl font-semibold text-emerald-800 mb-2">
+                No blog posts yet
+              </h3>
+              <p className="text-emerald-600 mb-6">
+                Start writing your first blog post using the form above!
+              </p>
               <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="px-6 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
               >
                 Create First Post
@@ -375,7 +430,7 @@ export default function Blog() {
                         {stripHtml(blog.description).substring(0, 120)}...
                       </p>
                     </div>
-                    
+
                     <div className="flex justify-between items-center pt-3 border-t border-emerald-100">
                       <span className="text-xs text-emerald-500">
                         {new Date().toLocaleDateString()}
@@ -411,12 +466,15 @@ export default function Blog() {
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FiTrash2 className="text-red-600 text-3xl" />
               </div>
-              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Delete Blog Post</h2>
+              <h2 className="text-2xl font-bold text-emerald-900 mb-2">
+                Delete Blog Post
+              </h2>
               <p className="text-emerald-700">
-                This action cannot be undone. The blog post will be permanently removed.
+                This action cannot be undone. The blog post will be permanently
+                removed.
               </p>
             </div>
-            
+
             <div className="flex justify-center gap-4">
               <button
                 onClick={closeDeleteModal}

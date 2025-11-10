@@ -382,6 +382,8 @@ const Login = () => {
       const { data } = await api.post(endpoint, payload); // centralized API call
 
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+
       // optionally store role: localStorage.setItem("role", data.role);
 
       navigate("/"); // redirect to dashboard
@@ -406,7 +408,7 @@ const Login = () => {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-emerald-600 to-teal-700 py-6 px-8 text-center">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-white ">
               {loginType === "admin" ? "Admin Portal" : "User Login"}
             </h1>
             <p className="text-emerald-100 mt-1">
@@ -417,11 +419,12 @@ const Login = () => {
           </div>
 
           {/* Login Type Toggle */}
-          <div className="flex justify-center space-x-4 mt-4">
+          <div className="flex justify-center space-x-4 mt-4 hidden ">
             {["admin", "user"].map((type) => (
               <label key={type} className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
+                  disabled={true}
                   value={type}
                   checked={loginType === type}
                   onChange={() => setLoginType(type)}

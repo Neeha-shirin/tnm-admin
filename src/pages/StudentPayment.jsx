@@ -102,7 +102,7 @@ const Header = () => (
     initial={{ y: -50, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.5 }}
-    className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg"
+   className=" text-emerald-800 shadow-lg"
   >
     <div className="container mx-auto px-4 py-4">
       <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ const Header = () => (
           <div className="bg-white/20 p-2 rounded-lg mr-3">
             <i className="fas fa-credit-card text-xl"></i>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Plans & Payments</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Students Plans & Payments</h1>
         </div>
       </div>
     </div>
@@ -219,7 +219,16 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
 );
 
 // Payments Table Component
-const PaymentsTable = ({ payments }) => (
+const PaymentsTable = ({
+  payments,
+  indexOfFirstPayment,
+  totalPayments,
+  itemsPerPage,
+  currentPaymentPage,
+  setCurrentPaymentPage,
+}) => (
+
+
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
@@ -241,11 +250,12 @@ const PaymentsTable = ({ payments }) => (
       <table className="w-full">
         <thead>
           <tr className="text-left text-gray-600 text-sm uppercase border-b border-gray-200 bg-gray-50">
+             <th className="py-4 px-6 font-medium text-center w-16">S.NO</th>
             <th className="py-4 px-6 font-medium">Student</th>
             <th className="py-4 px-6 font-medium">Plan</th>
             <th className="py-4 px-6 font-medium">Amount</th>
             <th className="py-4 px-6 font-medium">Date</th>
-            <th className="py-4 px-6 font-medium">Status</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -257,14 +267,27 @@ const PaymentsTable = ({ payments }) => (
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
             >
+              <td className="py-4 px-6 text-center text-gray-700 font-medium">
+                {indexOfFirstPayment + idx + 1}
+              </td>
+
               <td className="py-4 px-6">
                 <div className="flex items-center">
-                  <div className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                    <i className="fas fa-user text-gray-600"></i>
+                  <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center overflow-hidden shadow-sm border border-emerald-200 mr-3">
+                    {pay.student?.profile_photo ? (
+                      <img
+                        src={pay.student.profile_photo}
+                        alt={pay.student_name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <i className="fas fa-user text-emerald-500 text-sm"></i>
+                    )}
                   </div>
-                  <span className="font-medium">{pay.student_name}</span>
+                  <span className="font-medium text-gray-800">{pay.student_name}</span>
                 </div>
               </td>
+
               <td className="py-4 px-6">
                 <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-1 rounded-full">
                   {pay.plan_name}
@@ -280,28 +303,37 @@ const PaymentsTable = ({ payments }) => (
                   year: "numeric",
                 })}
               </td>
-              <td className="py-4 px-6">
-                <motion.span
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                    pay.status === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-amber-100 text-amber-800"
-                  }`}
-                >
-                  <i
-                    className={`fas ${
-                      pay.status === "paid" ? "fa-check-circle" : "fa-clock"
-                    } mr-1`}
-                  ></i>
-                  {pay.status.charAt(0).toUpperCase() + pay.status.slice(1)}
-                </motion.span>
-              </td>
+              
             </motion.tr>
           ))}
         </tbody>
+        {/* Pagination Controls */}
+
+
       </table>
+      {/* ✅ Pagination Buttons */}
+{totalPayments > itemsPerPage && (
+
+  <div className="flex justify-center items-center gap-2 p-4 border-t border-gray-100 bg-gray-50">
+    {Array.from(
+      { length: Math.ceil(totalPayments / itemsPerPage) },
+      (_, i) => (
+        <button
+          key={i}
+          onClick={() => setCurrentPaymentPage(i + 1)}
+          className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+            currentPaymentPage === i + 1
+              ? "bg-green-600 text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          {i + 1}
+        </button>
+      )
+    )}
+  </div>
+)}
+
     </div>
   </motion.div>
 );
@@ -437,6 +469,15 @@ export default function Payment() {
   };
 
   const [payments, setPayments] = useState([]);
+  // Pagination states for payments
+const [currentPaymentPage, setCurrentPaymentPage] = useState(1);
+const itemsPerPage = 10;
+
+// Calculate visible payments
+const indexOfLastPayment = currentPaymentPage * itemsPerPage;
+const indexOfFirstPayment = indexOfLastPayment - itemsPerPage;
+const currentPayments = payments.slice(indexOfFirstPayment, indexOfLastPayment);
+
   const [loadingPayments, setLoadingPayments] = useState(true);
 
   useEffect(() => {
@@ -488,7 +529,7 @@ export default function Payment() {
       <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Stats Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <StatsCard
             icon="fas fa-list"
             title="Total Plans"
@@ -507,17 +548,8 @@ export default function Payment() {
             value={`₹${payments.reduce((sum, p) => sum + (p.amount || 0), 0)}`}
             color="border-l-yellow-500"
           />
-          <StatsCard
-            icon="fas fa-users"
-            title="Unique Students"
-            value={
-              new Set(payments.map((p) => p.student_name || "Unknown")).size
-            }
-            color="border-l-pink-500"
-          />
-        </div>
-
-        
+          
+        </div>        
       </div>
 
       <div className="container mx-auto px-4 py-8">
@@ -527,7 +559,16 @@ export default function Payment() {
           onDeletePlan={handleDeletePlan}
           onAddPlan={() => setIsAddOpen(true)}
         />
-        <PaymentsTable payments={payments} />
+        <PaymentsTable
+          payments={currentPayments}
+          indexOfFirstPayment={indexOfFirstPayment}
+          totalPayments={payments.length}
+          itemsPerPage={itemsPerPage}
+          currentPaymentPage={currentPaymentPage}
+          setCurrentPaymentPage={setCurrentPaymentPage}
+        />
+
+
       </div>
 
       {/* Alert Modal */}

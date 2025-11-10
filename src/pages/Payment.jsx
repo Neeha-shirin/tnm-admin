@@ -55,7 +55,7 @@ const Header = () => (
     initial={{ y: -50, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.5 }}
-    className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg"
+    className=" text-emerald-800 shadow-lg"
   >
     <div className="container mx-auto px-4 py-4">
       <div className="flex items-center justify-between">
@@ -63,7 +63,7 @@ const Header = () => (
           <div className="bg-white/20 p-2 rounded-lg mr-3">
             <i className="fas fa-credit-card text-xl"></i>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Plans & Payments</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Tutor's  Plans & Payments</h1>
         </div>
       </div>
     </div>
@@ -178,7 +178,8 @@ const PlansTable = ({ plans, onEditPlan, onDeletePlan, onAddPlan }) => (
 );
 
 // Payments Table
-const PaymentsTable = ({ payments }) => (
+const PaymentsTable = ({ payments, indexOfFirstPayment }) => (
+
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
@@ -200,6 +201,7 @@ const PaymentsTable = ({ payments }) => (
       <table className="w-full">
         <thead>
           <tr className="text-left text-gray-600 text-sm uppercase border-b border-gray-200 bg-gray-50">
+            <th className="py-4 px-6 font-medium w-16 text-center">S.No</th>
             <th className="py-4 px-6 font-medium">Tutor</th>
             <th className="py-4 px-6 font-medium">Plan</th>
             <th className="py-4 px-6 font-medium">Amount</th>
@@ -216,11 +218,15 @@ const PaymentsTable = ({ payments }) => (
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
             >
+              {/* ✅ New index column */}
+            {/* ✅ Continuous index across pages */}
+              <td className="py-4 px-6 text-center font-medium text-gray-700">
+                {indexOfFirstPayment + idx + 1}
+              </td>
+
               <td className="py-4 px-6">
                 <div className="flex items-center">
-                  <div className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                    <i className="fas fa-user text-gray-600"></i>
-                  </div>
+                  
                   <span className="font-medium">{pay.tutor_name}</span>
                 </div>
               </td>
@@ -240,22 +246,30 @@ const PaymentsTable = ({ payments }) => (
                 })}
               </td>
               <td className="py-4 px-6">
-                <motion.span
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                    pay.status === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-amber-100 text-amber-800"
-                  }`}
-                >
-                  <i
-                    className={`fas ${
-                      pay.status === "paid" ? "fa-check-circle" : "fa-clock"
-                    } mr-1`}
-                  ></i>
-                  {pay.status.charAt(0).toUpperCase() + pay.status.slice(1)}
-                </motion.span>
+                {pay.upgradedFrom ? (
+                  <span className="text-sm text-indigo-700 font-medium">
+                    Upgraded{" "}
+                    <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      {pay.upgradedFrom}
+                    </span>{" "}
+                    →{" "}
+                    <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {pay.plan_name}
+                    </span>
+                  </span>
+                ) : (
+                  <motion.span
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                      pay.status === "paid"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {pay.plan_name}
+                  </motion.span>
+                )}
               </td>
             </motion.tr>
           ))}
@@ -324,6 +338,13 @@ export default function Payment() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [payments, setPayments] = useState([]);
+  // ✅ Pagination States for Payments
+const [currentPage, setCurrentPage] = useState(1);
+const paymentsPerPage = 10;
+const indexOfLastPayment = currentPage * paymentsPerPage;
+const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
+const currentPayments = payments.slice(indexOfFirstPayment, indexOfLastPayment);
+
   const [paymentsLoading, setPaymentsLoading] = useState(true);
 
   const [newPlan, setNewPlan] = useState({
@@ -349,21 +370,21 @@ export default function Payment() {
   const fetchPayments = async () => {
     try {
       setPaymentsLoading(true);
-
-      // Axios GET request
       const res = await api.get("/histories/");
-
-      // Axios returns data in res.data
       const data = res.data.histories || [];
 
-      // Map backend data to frontend table structure
+      // Step 1: Parse backend date safely
       const formatted = data.map((item) => {
-        // Parse date: backend sends 'DD-MM-YYYY HH:mm'
         let parsedDate = new Date();
         if (item.created_at) {
-          const [day, month, yearAndTime] = item.created_at.split("-");
-          const [year, time] = yearAndTime.split(" ");
-          parsedDate = new Date(`${year}-${month}-${day}T${time}:00`);
+          const str = item.created_at.trim();
+          if (/^\d{2}-\d{2}-\d{4}/.test(str)) {
+            const [day, month, yearAndTime] = str.split("-");
+            const [year, time = "00:00"] = yearAndTime.split(" ");
+            parsedDate = new Date(`${year}-${month}-${day}T${time}:00`);
+          } else if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+            parsedDate = new Date(str.replace(" ", "T") + ":00");
+          }
         }
 
         return {
@@ -371,13 +392,42 @@ export default function Payment() {
           tutor_name:
             item.tutor_name || item.tutor?.full_name || "Unknown Tutor",
           plan_name: item.plan_name || item.plan || "N/A",
-          amount: item.amount || item.price || 0,
+          amount: item.actual_price || 0,
           date: parsedDate,
           status: item.status || "pending",
         };
       });
 
-      setPayments(formatted);
+      // Step 2: Sort by date (latest first)
+      const sorted = formatted.sort((a, b) => b.date - a.date);
+
+      // Step 3: Keep only latest record per tutor and detect upgrades
+      const latestByTutor = [];
+      const tutorMap = new Map();
+
+      for (const payment of sorted) {
+        const tutor = payment.tutor_name;
+        const existing = tutorMap.get(tutor);
+
+        if (!existing) {
+          // find older plan for upgrade comparison
+          const older = sorted.find(
+            (p) =>
+              p.tutor_name === tutor &&
+              p.date < payment.date &&
+              p.plan_name !== payment.plan_name
+          );
+
+          tutorMap.set(tutor, {
+            ...payment,
+            upgradedFrom: older ? older.plan_name : null,
+          });
+        }
+      }
+
+      latestByTutor.push(...tutorMap.values());
+
+      setPayments(latestByTutor);
     } catch (err) {
       console.error("Error fetching payments:", err);
       alert("Error fetching payments");
@@ -386,11 +436,11 @@ export default function Payment() {
     }
   };
 
+  console.log(payments);
   // Calculate stats
   // -- after this existing code:
-  const totalRevenue = payments
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
+
   const pendingPayments = payments.filter((p) => p.status === "pending").length;
 
   // build dynamic card data
@@ -537,7 +587,63 @@ export default function Payment() {
           onAddPlan={handleAddPlan}
         />
 
-        <PaymentsTable payments={payments} />
+        {/* ✅ Payments Table with Pagination */}
+      <PaymentsTable
+        payments={currentPayments}
+        indexOfFirstPayment={indexOfFirstPayment}
+      />
+
+
+{/* ✅ Pagination Controls */}
+{payments.length > paymentsPerPage && (
+  <div className="flex justify-center mt-6 space-x-2">
+    <button
+  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+  disabled={currentPage === 1}
+  className={`px-3 py-1 rounded-md text-sm font-medium border transition ${
+    currentPage === 1
+      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+      : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+  }`}
+>
+  <i className="fas fa-chevron-left"></i>
+</button>
+
+    {Array.from(
+      { length: Math.ceil(payments.length / paymentsPerPage) },
+      (_, i) => (
+        <button
+          key={i + 1}
+          onClick={() => setCurrentPage(i + 1)}
+          className={`px-3 py-1.5 rounded-lg border ${
+            currentPage === i + 1
+              ? "bg-emerald-600 text-white"
+              : "bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+          }`}
+        >
+          {i + 1}
+        </button>
+      )
+    )}
+
+    <button
+      onClick={() =>
+        setCurrentPage((prev) =>
+          Math.min(prev + 1, Math.ceil(payments.length / paymentsPerPage))
+        )
+      }
+      disabled={currentPage === Math.ceil(payments.length / paymentsPerPage)}
+      className={`px-3 py-1.5 rounded-lg border ${
+        currentPage === Math.ceil(payments.length / paymentsPerPage)
+          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+          : "bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+      }`}
+    >
+      <i className="fas fa-chevron-right"></i>
+    </button>
+  </div>
+)}
+
       </div>
 
       {/* ✅ Add Plan Modal */}

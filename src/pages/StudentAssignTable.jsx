@@ -13,9 +13,11 @@ const StudentAssignTable = () => {
 
   const [notification, setNotification] = useState(null);
   const [oldAssignedIds, setOldAssignedIds] = useState([]);
+  const [saving, setSaving] = useState(false);
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const tutorsPerPage = 10;
 
-
-  
 
 useEffect(() => {
   const loadData = async () => {
@@ -89,67 +91,19 @@ const openAssignStudents = () => {
 };
 
 
-const toggleStudent = async (studentId) => {
-  if (!selectedTutor || !selectedTutor.id) return;
-
-  const tutorId = Number(selectedTutor.id);
-  const id = Number(studentId);
-  const isAssigned = selectedStudents.includes(id);
-
-  try {
-    // Perform API call
-    await api.post("/admin/manage-assignments/", {
-      tutor_ids: [tutorId],
-      student_ids: [id],
-      action: isAssigned ? "unassign" : "assign",
-    });
-
-    // Update selectedStudents
-    setSelectedStudents((prev) =>
-      isAssigned ? prev.filter((sid) => sid !== id) : [...prev, id]
-    );
-
-    // Update tutors state
-    setTutors((prev) =>
-      prev.map((t) => {
-        if (t.id !== tutorId) return t;
-
-        let updatedStudents = t.assigned_students || [];
-        if (isAssigned) {
-          updatedStudents = updatedStudents.filter((s) => Number(s.id) !== id);
-        } else {
-          const student = students.find((s) => Number(s.id) === id);
-          updatedStudents = [...updatedStudents, student];
-        }
-
-        return { ...t, assigned_students: updatedStudents };
-      })
-    );
-
-    // Update selectedTutor for modal
-    setSelectedTutor((prev) => {
-      const updatedStudents = isAssigned
-        ? prev.assigned_students.filter((s) => Number(s.id) !== id)
-        : [...(prev.assigned_students || []), students.find((s) => Number(s.id) === id)];
-
-      return { ...prev, assigned_students: updatedStudents };
-    });
-
-    // Persist to localStorage
-    setTutors((prev) => {
-      localStorage.setItem("tutorsData", JSON.stringify(prev));
-      return prev;
-    });
-  } catch (err) {
-    console.error("Assignment failed:", err);
-    setNotification({ type: "error", message: "Failed to update assignment" });
-    setTimeout(() => setNotification(null), 3000);
-  }
+const toggleStudent = (studentId) => {
+  setSelectedStudents((prev) =>
+    prev.includes(studentId)
+      ? prev.filter((id) => id !== studentId)
+      : [...prev, studentId]
+  );
 };
 
-// Save all assignments at once
+
 const handleSave = async () => {
   if (!selectedTutor || !selectedTutor.id) return;
+
+  setSaving(true); // ⏳ Start loading
 
   const tutorId = Number(selectedTutor.id);
   const newIds = selectedStudents.map(Number);
@@ -159,6 +113,7 @@ const handleSave = async () => {
   const toUnassign = oldIds.filter((id) => !newIds.includes(id));
 
   try {
+    // 🔹 API Calls
     if (toAssign.length > 0) {
       await api.post("/admin/manage-assignments/", {
         tutor_ids: [tutorId],
@@ -175,32 +130,48 @@ const handleSave = async () => {
       });
     }
 
-    // Update selectedTutor and tutors state
-    const updatedAssigned = students.filter((s) => newIds.includes(Number(s.id)));
-
-    setTutors((prev) =>
-      prev.map((t) => (t.id === tutorId ? { ...t, assigned_students: updatedAssigned } : t))
+    // 🔹 Build updated assigned student list
+    const updatedAssigned = students.filter((s) =>
+      newIds.includes(Number(s.id))
     );
 
-    setSelectedTutor((prev) => ({ ...prev, assigned_students: updatedAssigned }));
-
-    // Persist to localStorage
-    setTutors((prev) => {
-      localStorage.setItem("tutorsData", JSON.stringify(prev));
-      return prev;
+    // 🔹 Update tutors state and localStorage synchronously
+    setTutors((prevTutors) => {
+      const updatedTutors = prevTutors.map((t) =>
+        t.id === tutorId ? { ...t, assigned_students: updatedAssigned } : t
+      );
+      localStorage.setItem("tutorsData", JSON.stringify(updatedTutors));
+      return updatedTutors;
     });
 
-    setNotification({ type: "success", message: "Assignments updated successfully!" });
+    // 🔹 Update selectedTutor
+    setSelectedTutor((prev) =>
+      prev ? { ...prev, assigned_students: updatedAssigned } : prev
+    );
+
+    // ✅ Success notification
+    setNotification({
+      type: "success",
+      message: "Assignments updated successfully!",
+    });
     setTimeout(() => setNotification(null), 3000);
 
+    // Close modal
     setAssignMode(false);
     setSelectedTutor(null);
   } catch (err) {
     console.error("Save assignments failed:", err);
-    setNotification({ type: "error", message: "Failed to update assignments" });
+    setNotification({
+      type: "error",
+      message: "Failed to update assignments",
+    });
     setTimeout(() => setNotification(null), 3000);
+  } finally {
+    setSaving(false); // ✅ Stop loading
   }
 };
+
+
 
   const filteredTutors = tutors.filter(
     (t) =>
@@ -213,6 +184,12 @@ const handleSave = async () => {
       (s.full_name || "").toLowerCase().includes(studentSearch.toLowerCase()) ||
       (s.qualification || "").toLowerCase().includes(studentSearch.toLowerCase())
   );
+  // Pagination logic for tutors
+const indexOfLastTutor = currentPage * tutorsPerPage;
+const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
+const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
+const totalPages = Math.ceil(filteredTutors.length / tutorsPerPage);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 md:p-6">
@@ -220,9 +197,9 @@ const handleSave = async () => {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-1">
-            Tutor Management System
+            Student Assignment System
           </h1>
-          <p className="text-gray-600">Manage tutor-student assignments efficiently</p>
+          <p className="text-gray-600">Managing and  Assigning students to tutors efficiently</p>
         </div>
 
         {/* Tabs */}
@@ -264,23 +241,27 @@ const handleSave = async () => {
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-emerald-100">
                 <thead className="bg-gray-100">
-  <tr>
-    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
-      S.No
-    </th>
-    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
-      Tutor
-    </th>
-    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
-      Assigned Students
-    </th>
-    <th className="px-6 py-3 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">
-      Details
-    </th>
-  </tr>
-</thead>
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+                      S.No
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+                      Tutor
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+                      Assigned Students
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-emerald-700 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-emerald-700 uppercase tracking-wider">
+                      Details
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="bg-white divide-y divide-emerald-100">
-  {filteredTutors.map((tutor, index) => (
+  {currentTutors.map((tutor, index) => (
+
     <tr
       key={tutor.id ?? index}
       className="hover:bg-emerald-50 transition-colors duration-150 cursor-pointer group"
@@ -288,8 +269,9 @@ const handleSave = async () => {
     >
       {/* Serial Number */}
       <td className="px-6 py-4 whitespace-nowrap text-emerald-700">
-        {index + 1}
+        {(currentPage - 1) * tutorsPerPage + index + 1}
       </td>
+
 
       {/* Profile Photo + Name */}
       <td className="px-6 py-4 whitespace-nowrap">
@@ -317,6 +299,19 @@ const handleSave = async () => {
           ? tutor.assigned_students.map((s) => s.full_name).join(", ")
           : "No students assigned"}
       </td>
+      {/* ✅ New Status Cell */}
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+              tutor.is_paid
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {tutor.is_paid ? "Paid" : "Unpaid"}
+          </span>
+        </td>
+
 
       {/* Action */}
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
@@ -329,6 +324,25 @@ const handleSave = async () => {
   ))}
 </tbody>
               </table>
+                            {filteredTutors.length > tutorsPerPage && (
+                  <div className="flex justify-center items-center py-4 bg-white border-t border-emerald-100 space-x-2">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                          currentPage === i + 1
+                            ? "bg-emerald-600 text-white"
+                            : "bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-50"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+
             </div>
           </div>
         )}
@@ -421,11 +435,11 @@ const handleSave = async () => {
                   >
                     <div className="flex items-start">
                       <input
-                        type="checkbox"
-                        className="h-5 w-5 text-green-700 rounded focus:ring-green-600 mt-1"
-                        checked={selectedStudents.includes(Number(student.id))} // ensure number
-                        onChange={() => toggleStudent(Number(student.id))} // ensure number
-                      />
+  type="checkbox"
+  className="h-5 w-5 text-green-700 rounded focus:ring-green-600 mt-1"
+  checked={selectedStudents.includes(Number(student.id))}
+  onChange={() => toggleStudent(Number(student.id))}
+/>
 
                       <div className="ml-3 flex-1">
                         <div className="text-gray-700 font-medium">{student.full_name}</div>
@@ -457,12 +471,17 @@ const handleSave = async () => {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 transition-colors"
-                >
-                  Save Assignments
-                </button>
+               <button
+  onClick={handleSave}
+  disabled={saving}
+  className={`px-4 py-2 rounded-xl font-semibold text-white transition-colors ${
+    saving
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-gradient-to-r from-emerald-600 to-green-700 hover:from-green-700 hover:to-emerald-800"
+  }`}
+>
+  {saving ? "Saving..." : "Save Assignments"}
+</button>
               </div>
             </div>
           </div>

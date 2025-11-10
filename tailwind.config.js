@@ -8,5 +8,6 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [flowbite.plugin()],
+  plugins: [flowbite.plugin(),require("@tailwindcss/typography")]
+  
 };

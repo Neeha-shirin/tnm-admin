@@ -44,6 +44,7 @@ const Tutor = () => {
           description: t.description || "",
           hourly_rate: t.hourly_rate || "N/A",
           add_to_home: t.add_to_home || false,
+         
         }));
 
         setTutorRequests(allTutors.filter((t) => t.status === "Pending"));
@@ -67,6 +68,7 @@ const Tutor = () => {
           description: t.description || "",
           hourly_rate: t.hourly_rate || "N/A",
           add_to_home: t.add_to_home || false,
+          activity: t.active_inactive ? "Active" : "Inactive",
         }));
         setTutors(approvedTutors);
 
@@ -87,6 +89,7 @@ const Tutor = () => {
             : [Object.values(t.available_days || {}).join(" ")],
           description: t.description || "",
           hourly_rate: t.hourly_rate || "N/A",
+          activity: t.active_inactive ? "Active" : "Inactive",
         }));
         setRejectedTutors(rejected);
       } catch (err) {
@@ -179,18 +182,18 @@ const Tutor = () => {
         ) : (
           <>
             {/* Pending Requests Table */}
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Pending Requests</h2>
-                <input
+            {/* <div className="mb-8">
+              <div className="flex justify-between items-center mb-4"> */}
+                {/* <h2 className="text-xl font-bold text-gray-800">Pending Requests</h2> */}
+                {/* <input
                   type="text"
                   placeholder="Search pending tutors..."
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 w-64"
                   value={pendingSearchTerm}
                   onChange={(e) => setPendingSearchTerm(e.target.value)}
-                />
-              </div>
-              <TutorsTable
+                /> */}
+              {/* </div> */}
+              {/* <TutorsTable
                 tutors={filterBySearch(tutorRequests, pendingSearchTerm)}
                 variant="requests"
                 onRequestStatusChange={(tutorId, newStatus) => {
@@ -199,8 +202,8 @@ const Tutor = () => {
                 }}
                 emptyMessage="No tutor requests found."
                 onRowClick={setSelectedTutor}
-              />
-            </div>
+              /> */}
+            {/* </div> */}
 
             {/* Approved Table */}
             <div className="mb-8">

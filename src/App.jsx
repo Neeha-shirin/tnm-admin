@@ -1,6 +1,6 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import Reviews from "./pages/Reviews";
+
 import Courses from "./pages/Courses";
 import { UserNavbar } from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
@@ -13,203 +13,252 @@ import Payment from "./pages/Payment";
 import StudentAssignTable from "./pages/StudentAssignTable";
 import Testmonio from "./pages/Testmonio";
 import Blog from "./pages/Blog";
-import User from "./pages/User"
-import Contact from "./pages/Contact"
+import User from "./pages/User";
+import Contact from "./pages/Contact";
 import "./App.css";
 import NotificationsPage from "./pages/NotificationsPage";
 import StudentPayment from "./pages/StudentPayment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Faq from "./pages/Faq";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Refund from "./pages/Refund";
 import Terms from "./pages/Terms";
+import RoleBasedRoute from "./components/RoleBasedRoute";
+import Unauthorized from "./pages/Unauthorized";
+import NotFoundPage from "./pages/NotFoundPage";
+import ScrollToTop from "./components/ScrollToTop";
+import Backup from "./pages/Backup";
 
 export default function App() {
   const location = useLocation();
 
+  useEffect(() => {
+    // Prevent caching protected routes
+    window.history.scrollRestoration = "manual";
+    window.onpopstate = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.replace("/login");
+      }
+    };
+  }, [location]);
+
   // Check if current route is login
-  const isLoginPage = location.pathname === "/login";
+  const hideLayout =
+    location.pathname === "/login" ||
+    location.pathname === "/unauthorized" ||
+    location.pathname === "/404" ||
+    ![
+      "/",
+      "/course",
+      "/reviews",
+      "/tutor",
+      "/student",
+      "/testmonio",
+      "/blog",
+      "/studentassign",
+      "/assignment",
+      "/messages",
+      "/contact",
+      "/faq",
+      "/privacy",
+      "/refund",
+      "/terms",
+      "/user",
+      "/payment",
+      "/studentpayment",
+      "/backup",
+    ].includes(location.pathname);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-screen">
+      <ScrollToTop />
       {/* Show navbar only if not on login page */}
-      {!isLoginPage && <UserNavbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />}
+      {!hideLayout && (
+        <UserNavbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      )}
 
       <div className="flex flex-1 h-[1000px]">
         {/* Show sidebar only if not on login page */}
-        {!isLoginPage && (
+        {!hideLayout && (
           <div className="lg:w-64 bg-white shadow-md border-r">
-            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <Sidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
           </div>
         )}
 
         {/* Page content */}
-         {/* <div className="flex-1 p-6 bg-gray-100 overflow-y-auto scrollbar-hide"></div> */}
+        {/* <div className="flex-1 p-6 bg-gray-100 overflow-y-auto scrollbar-hide"></div> */}
         <div className="flex-1 p-6 bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-y-auto scrollbar-hide">
-
-
-
-          
           <Routes>
             {/* Public */}
             <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Protected */}
+            {/* Admin-only */}
             <Route
-              path="/"
+              path="/user"
               element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
+                  <User />
+                </RoleBasedRoute>
               }
             />
-            <Route
-              path="/course"
-              element={
-                <PrivateRoute>
-                  <Courses />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/reviews"
-              element={
-                <PrivateRoute>
-                  <Reviews />
-                </PrivateRoute>
-              }
-            />
+
+            {/* Financier-only */}
             <Route
               path="/payment"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["financier", "admin"]}>
                   <Payment />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
+
+            {/* Monitor-only */}
+            <Route
+              path="/studentpayment"
+              element={
+                <RoleBasedRoute allowedRoles={["financier", "admin"]}>
+                  <StudentPayment />
+                </RoleBasedRoute>
+              }
+            />
+
             <Route
               path="/tutor"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["monitor", "admin"]}>
                   <Tutor />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
+
+            <Route
+              path="/course"
+              element={
+                <RoleBasedRoute allowedRoles={["monitor", "admin"]}>
+                  <Courses />
+                </RoleBasedRoute>
+              }
+            />
+            
+
             <Route
               path="/student"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["monitor", "admin"]}>
                   <Student />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/testmonio"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Testmonio />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/blog"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Blog />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/studentassign"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["monitor", "admin"]}>
                   <StudentAssignTable />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/assignment"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["monitor", "admin"]}>
                   <Assignment />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
-              path="/studentpayment"
-              element={
-                <PrivateRoute>
-                  <StudentPayment />
-                </PrivateRoute>
-              }
-            />
-             <Route
-              path="/user"
-              element={
-                <PrivateRoute>
-                  <User />
-                </PrivateRoute>
-              }
-            />
-
-             <Route
               path="/messages"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute
+                  allowedRoles={["monitor", "admin", "financier"]}
+                >
                   <NotificationsPage />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/contact"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Contact />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
-
             <Route
               path="/faq"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Faq />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
             <Route
               path="/privacy"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <PrivacyPolicy />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
-
             <Route
               path="/refund"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Refund />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
-
             <Route
               path="/terms"
               element={
-                <PrivateRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
                   <Terms />
-                </PrivateRoute>
+                </RoleBasedRoute>
               }
             />
+            <Route
+              path="/backup"
+              element={
+                <RoleBasedRoute allowedRoles={["admin"]}>
+                  <Backup />
+                </RoleBasedRoute>
+              }
+            />
+
+            {/* General protected pages */}
+            <Route
+              path="/"
+              element={
+                <RoleBasedRoute allowedRoles={["financier", "admin","monitor"]}>
+                  <Dashboard />
+                </RoleBasedRoute>
+              }
+            />
+
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
-          
-
-            
-
-          
         </div>
       </div>
     </div>

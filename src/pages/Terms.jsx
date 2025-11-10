@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import api from "../api";
 
 const TermsAndConditions = () => {
@@ -38,110 +38,74 @@ const TermsAndConditions = () => {
 
   // Load from localStorage on mount
   useEffect(() => {
-  const fetchTerms = async () => {
-    setIsLoading(true);
-    try {
-      const res = await api.get(`/static-pages/`);
+    const fetchTerms = async () => {
+      setIsLoading(true);
+      try {
+        const res = await api.get(`/static-pages/`);
 
-      const termsPage = res.data.find(
-        (page) => page.page_type === "terms"
-      );
+        const termsPage = res.data.find((page) => page.page_type === "terms");
 
-      if (termsPage) {
-        setContent(termsPage.content);
-        setSavedContent(termsPage.content);
-        setPageId(termsPage.id);
-        setLastUpdated(
-          new Date(termsPage.last_updated).toLocaleString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        );
-      } else {
-        setContent(
-          `<p>Enter your comprehensive terms and conditions here. Include details about user agreements, privacy policies, usage guidelines, and legal information.</p>`
-        );
+        if (termsPage) {
+          setContent(termsPage.content);
+          setSavedContent(termsPage.content);
+          setPageId(termsPage.id);
+          setLastUpdated(
+            new Date(termsPage.last_updated).toLocaleString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          );
+        } else {
+          setContent(
+            `<p>Enter your comprehensive terms and conditions here. Include details about user agreements, privacy policies, usage guidelines, and legal information.</p>`
+          );
+        }
+      } catch (error) {
+        console.error("Error loading Terms & Conditions:", error);
+        showNotification("Failed to load Terms & Conditions.", "error");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error loading Terms & Conditions:", error);
-      showNotification("Failed to load Terms & Conditions.", "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  fetchTerms();
-}, []);
-
+    fetchTerms();
+  }, []);
 
   // Enhanced save handler
-  const handleSave = async () => {
-    if (
-      !content ||
-      !content.trim() ||
-      content.includes("Enter your comprehensive terms")
-    ) {
-      showNotification(
-        "Please create terms and conditions before saving.",
-        "error"
-      );
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const payload = {
+ const handleSave = async () => {
+  setIsLoading(true);
+  try {
+    if (pageId) {
+      // Update existing terms
+      const response = await api.put(`/static-pages/${pageId}/`, {
         page_type: "terms",
-        content: content,
-      };
-
-      let page = pageId;
-
-      // ✅ If no ID stored, check if the page already exists
-      if (!pageId) {
-        const resCheck = await api.get("/static-pages/?page_type=terms");
-        if (resCheck.data && resCheck.data.length > 0) {
-          page = resCheck.data[0].id;
-          setPageId(page);
-        }
-      }
-
-      let res;
-      if (page) {
-        // ✅ Update existing Terms
-        res = await api.put(`/static-pages/${page}/`, payload);
-        showNotification(
-          "Terms and conditions updated successfully!",
-          "success"
-        );
-      } else {
-        // ✅ Create new Terms
-        res = await api.post("/static-pages/", payload);
-        setPageId(res.data.id);
-        showNotification(
-          "Terms and conditions created successfully!",
-          "success"
-        );
-      }
-
-      // ✅ Sync UI
-      setSavedContent(res.data.content);
-      setLastUpdated(
-        res.data.last_updated
-          ? new Date(res.data.last_updated).toLocaleString()
-          : new Date().toLocaleString()
-      );
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving Terms & Conditions:", error);
-      showNotification("Failed to save Terms & Conditions.", "error");
-    } finally {
-      setIsLoading(false);
+        content,
+      });
+      setSavedContent(response.data.content);
+      setNotification("Terms & Conditions updated successfully!");
+    } else {
+      // Create new terms page automatically
+      const response = await api.post("/static-pages/", {
+        page_type: "terms",
+        content,
+      });
+      setPageId(response.data.id);
+      setSavedContent(response.data.content);
+      setNotification("Terms & Conditions created successfully!");
     }
-  };
+
+    setIsEditing(false);
+  } catch (error) {
+    console.error("Error saving Terms & Conditions:", error);
+    alert("An error occurred while saving. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   // Enhanced actions
   const handleEdit = () => {
@@ -738,70 +702,47 @@ const TermsAndConditions = () => {
                     </p>
                   </div>
                   <div className="border border-emerald-200 rounded-xl overflow-hidden shadow-sm">
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={content}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        setContent(data);
+                    <ReactQuill
+                      theme="snow"
+                      value={content}
+                      onChange={(value) => setContent(value)}
+                      modules={{
+                        toolbar: [
+                          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                          ["bold", "italic", "underline", "strike"],
+                          [{ script: "sub" }, { script: "super" }],
+                          [{ color: [] }, { background: [] }],
+                          [{ font: [] }],
+                          [{ size: ["small", false, "large", "huge"] }],
+                          [{ align: [] }],
+                          [{ list: "ordered" }, { list: "bullet" }],
+                          [{ indent: "-1" }, { indent: "+1" }],
+                          ["blockquote", "code-block"],
+                          ["link", "image", "video"],
+                          ["clean"],
+                        ],
                       }}
-                      config={{
-                        toolbar: {
-                          items: [
-                            "heading",
-                            "|",
-                            "bold",
-                            "italic",
-                            "underline",
-                            "strikethrough",
-                            "|",
-                            "link",
-                            "bulletedList",
-                            "numberedList",
-                            "|",
-                            "blockQuote",
-                            "insertTable",
-                            "|",
-                            "undo",
-                            "redo",
-                          ],
-                          shouldNotGroupWhenFull: false,
-                        },
-                        heading: {
-                          options: [
-                            {
-                              model: "paragraph",
-                              title: "Paragraph",
-                              class: "ck-heading_paragraph",
-                            },
-                            {
-                              model: "heading1",
-                              view: "h1",
-                              title: "Heading 1",
-                              class: "ck-heading_heading1",
-                            },
-                            {
-                              model: "heading2",
-                              view: "h2",
-                              title: "Heading 2",
-                              class: "ck-heading_heading2",
-                            },
-                            {
-                              model: "heading3",
-                              view: "h3",
-                              title: "Heading 3",
-                              class: "ck-heading_heading3",
-                            },
-                          ],
-                        },
-                        table: {
-                          contentToolbar: [
-                            "tableColumn",
-                            "tableRow",
-                            "mergeTableCells",
-                          ],
-                        },
-                      }}
+                      formats={[
+                        "header",
+                        "font",
+                        "size",
+                        "bold",
+                        "italic",
+                        "underline",
+                        "strike",
+                        "script",
+                        "color",
+                        "background",
+                        "align",
+                        "list",
+                        "bullet",
+                        "indent",
+                        "blockquote",
+                        "code-block",
+                        "link",
+                        "image",
+                        "video",
+                      ]}
                     />
                   </div>
                 </div>

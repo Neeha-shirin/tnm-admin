@@ -4,12 +4,12 @@ export const UserCard = ({ icon, title, value }) => {
   return (
     <div className="w-full max-w-xs ">
       <Card
-        className="flex flex-col items-center p-6 shadow-md hover:shadow-2xl 
+        className="flex flex-col items-center shadow-md hover:shadow-2xl text-center p-4 
                    transition-all duration-300 rounded-2xl border border-gray-100 bg-white 
                    transform hover:-translate-y-1 hover:scale-105 h-[90%]"
       >
         {/* Icon */}
-        <div className="text-green-600 text-4xl mb-3 animate-bounce">
+        <div className="text-green-600 text-3xl animate-bounce flex justify-center">
           {icon}
         </div>
 
@@ -19,7 +19,7 @@ export const UserCard = ({ icon, title, value }) => {
         </p>
 
         {/* Value */}
-        <h2 className="text-3xl font-extrabold text-gray-900 mt-1">
+        <h2 className="text-3xl font-extrabold text-gray-900">
           {value}
         </h2>
       </Card>

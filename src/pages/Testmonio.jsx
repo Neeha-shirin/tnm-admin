@@ -149,7 +149,7 @@ export default function Testmonio() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 md:p-8 mt-16">
+    <div className="">
       <div>
         {/* Header */}
         <div className="text-center mb-12">

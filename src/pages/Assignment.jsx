@@ -12,10 +12,16 @@ const TutorAssignTable = () => {
   const [activeTab, setActiveTab] = useState("students");
   const [assignMode, setAssignMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [notification, setNotification] = useState(null);
 
   const [oldAssignedIds, setOldAssignedIds] = useState([]);
+  // Pagination states
+  const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const [currentTutorPage, setCurrentTutorPage] = useState(1);
+  const itemsPerPage = 10; // show 10 per page
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +66,8 @@ const toggleTutor = (tutorId) => {
 
   const handleSave = async () => {
   if (!selectedStudent?.id) return;
+
+   setSaving(true);
 
   const studentId = Number(selectedStudent.id);
   const oldIds = (oldAssignedIds || []).map(Number);
@@ -119,6 +127,8 @@ const toggleTutor = (tutorId) => {
       message: "Failed to update tutor assignments",
     });
     setTimeout(() => setNotification(null), 3000);
+  }finally {
+    setSaving(false);
   }
 };
 
@@ -127,12 +137,22 @@ const toggleTutor = (tutorId) => {
       (s.full_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (s.category || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const paginatedStudents = filteredStudents.slice(
+  (currentStudentPage - 1) * itemsPerPage,
+  currentStudentPage * itemsPerPage
+);
+
 
   const filteredTutors = tutors.filter(
     (t) =>
       (t.full_name || "").toLowerCase().includes(tutorSearch.toLowerCase()) ||
       (t.qualification || "").toLowerCase().includes(tutorSearch.toLowerCase())
   );
+  const paginatedTutors = filteredTutors.slice(
+  (currentTutorPage - 1) * itemsPerPage,
+  currentTutorPage * itemsPerPage
+);
+
 
   
 
@@ -144,9 +164,7 @@ const toggleTutor = (tutorId) => {
           <h1 className="text-3xl md:text-3xl font-bold text-slate-800 mb-2">
             Tutor Assignment System
           </h1>
-          <p className="text-slate-600">
-            Manage student-tutor relationships with ease
-          </p>
+          <p className="text-gray-600">Managing and  Assigning tutors to students efficiently</p>
         </div>
 
         {/* Tabs */}
@@ -231,7 +249,8 @@ const toggleTutor = (tutorId) => {
 
                 <tbody className="bg-white divide-y divide-slate-100">
                     {filteredStudents.length > 0 ? (
-                      filteredStudents.map((student, index) => (
+                      paginatedStudents.map((student, index) => (
+
                         <tr
                           key={student.id}
                           className="hover:bg-emerald-50 cursor-pointer transition"
@@ -239,8 +258,9 @@ const toggleTutor = (tutorId) => {
                         >
                           {/* Serial Number */}
                           <td className="px-4 py-4 md:px-6 md:py-4 text-slate-700">
-                            {index + 1}
+                            {(currentStudentPage - 1) * itemsPerPage + index + 1}
                           </td>
+
 
                           {/* Student Info */}
                           <td className="px-4 py-4 md:px-6 md:py-4 flex items-center space-x-3">
@@ -299,6 +319,22 @@ const toggleTutor = (tutorId) => {
                     )}
                   </tbody>
               </table>
+              <div className="flex justify-center items-center gap-2 p-4">
+                {Array.from({ length: Math.ceil(filteredStudents.length / itemsPerPage) }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentStudentPage(i + 1)}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                      currentStudentPage === i + 1
+                        ? "bg-green-600 text-white"
+                        : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+
             </div>
           </div>
         )}
@@ -338,7 +374,7 @@ const toggleTutor = (tutorId) => {
 
             {filteredTutors.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredTutors.map((tutor) => (
+                {paginatedTutors.map((tutor) => (
                   <div
                     key={tutor.id}
                     className="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow bg-white"
@@ -393,6 +429,25 @@ const toggleTutor = (tutorId) => {
                   : "No tutors found"}
               </div>
             )}
+            {/* Tutors Pagination */}
+            {filteredTutors.length > itemsPerPage && (
+              <div className="flex justify-center items-center gap-2 p-4">
+                {Array.from({ length: Math.ceil(filteredTutors.length / itemsPerPage) }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentTutorPage(i + 1)}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                      currentTutorPage === i + 1
+                        ? "bg-green-600 text-white"
+                        : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
           </div>
         )}
 
@@ -513,7 +568,7 @@ const toggleTutor = (tutorId) => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => handleAssignClick(selectedStudent)}
-                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-indigo-800 transition flex items-center"
+                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition flex items-center"
                   >
                     <svg
                       className="w-5 h-5 mr-2"
@@ -608,17 +663,21 @@ const toggleTutor = (tutorId) => {
                     filteredTutors.map((tutor) => (
                       <label
                         key={tutor.id}
-                        className="flex items-start p-3 rounded-lg hover:bg-green-50 transition-colors cursor-pointer"
+                        className="flex items-start p-3 rounded-lg hover:bg-green-100 transition-colors cursor-pointer"
                       >
                         <input
-  type="checkbox"
-  checked={selectedTutors.includes(Number(tutor.id))}
-  onChange={() => toggleTutor(tutor.id)}
-/>
+                          type="checkbox"
+                          checked={selectedTutors.includes(Number(tutor.id))}
+                          onChange={() => toggleTutor(tutor.id)} 
+                          className="green-800;
+"
+                          
+                        />
 
 
                         <div className="ml-3 flex-1">
-                          <div className="text-slate-800 font-medium flex items-center">
+                          <div className="text-slate-800 font-medium flex items-center justify-between">
+                          <div className="flex items-center">
                             {tutor.full_name}
                             {selectedTutors.includes(tutor.id) && (
                               <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
@@ -626,9 +685,23 @@ const toggleTutor = (tutorId) => {
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-slate-600 mb-2">
-                            {tutor.qualification}
-                          </div>
+
+                              {/* Payment Status Badge */}
+                              <span
+                                className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                  tutor.is_paid
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {tutor.is_paid ? "Paid" : "Unpaid"}
+                              </span>
+                            </div>
+
+                            <div className="text-sm text-slate-600 mb-2">
+                              {tutor.qualification}
+                            </div>
+
 
                           {Array.isArray(tutor.categories) &&
                             tutor.categories.length > 0 && (
@@ -669,14 +742,43 @@ const toggleTutor = (tutorId) => {
                   >
                     Cancel
                   </button>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-gradient-to-r from-emerald-500 via-green-600 to-emerald-700 text-white font-semibold rounded-lg shadow-md hover:from-emerald-600 hover:via-green-700 hover:to-emerald-800 transition-all"
-
-                    disabled={!selectedStudent} // allow save even if no tutors are selected
-                  >
-                    Save Assignments
-                  </button>
+                 <button
+  onClick={handleSave}
+  disabled={saving}
+  className={`px-4 py-2 rounded-lg font-semibold shadow-md transition-all flex items-center justify-center ${
+    saving
+      ? "bg-gray-400 text-white cursor-not-allowed"
+      : "bg-gradient-to-r from-emerald-500 via-green-600 to-emerald-700 text-white hover:from-emerald-600 hover:via-green-700 hover:to-emerald-800"
+  }`}
+>
+  {saving ? (
+    <>
+      <svg
+        className="animate-spin h-5 w-5 mr-2 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
+      </svg>
+      Saving...
+    </>
+  ) : (
+    "Save Assignments"
+  )}
+</button>
 
                 </div>
               </motion.div>
