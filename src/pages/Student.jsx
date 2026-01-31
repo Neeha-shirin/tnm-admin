@@ -184,23 +184,14 @@ const handleDeleteConfirm = async () => {
         </motion.div>
 
         {/* Dashboard cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-5 mb-8">
             <StatsCard
               title="Total Students"
               value={students.length}
               icon="fas fa-users"
               color="border-l-emerald-500"
-            />
-            
-            <StatsCard
-              title="Courses"
-              value={8} 
-              icon="fas fa-book"
-              color="border-l-teal-500"
-            />
-  
+            />     
         </div>
-
 
         {/* Search and Actions */}
         <motion.div 
@@ -387,23 +378,85 @@ const handleDeleteConfirm = async () => {
 
           </div>
           {/* Pagination */}
-{filteredStudents.length > itemsPerPage && (
-  <div className="flex justify-center items-center gap-2 p-6 bg-white border-t border-emerald-100">
-    {Array.from({ length: Math.ceil(filteredStudents.length / itemsPerPage) }, (_, i) => (
+{/* Pagination */}
+{filteredStudents.length > itemsPerPage && (() => {
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const maxVisiblePages = 5;
+
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  return (
+    <div className="flex justify-center items-center gap-2 p-6 bg-white border-t border-emerald-100">
+      
+      {/* Prev */}
       <button
-        key={i}
-        onClick={() => setCurrentPage(i + 1)}
-        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-          currentPage === i + 1
-            ? "bg-emerald-600 text-white shadow-md"
-            : "bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-        }`}
+        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+        disabled={currentPage === 1}
+        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-emerald-300 text-emerald-700 disabled:opacity-40"
       >
-        {i + 1}
+        Prev
       </button>
-    ))}
-  </div>
-)}
+
+      {/* First page */}
+      {startPage > 1 && (
+        <>
+          <button
+            onClick={() => setCurrentPage(1)}
+            className="px-3 py-1.5 rounded-lg text-sm bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+          >
+            1
+          </button>
+          <span className="px-2 text-emerald-500">…</span>
+        </>
+      )}
+
+      {/* Page numbers */}
+      {Array.from(
+        { length: endPage - startPage + 1 },
+        (_, i) => startPage + i
+      ).map(page => (
+        <button
+          key={page}
+          onClick={() => setCurrentPage(page)}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+            currentPage === page
+              ? "bg-emerald-600 text-white shadow-md"
+              : "bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      {/* Last page */}
+      {endPage < totalPages && (
+        <>
+          <span className="px-2 text-emerald-500">…</span>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            className="px-3 py-1.5 rounded-lg text-sm bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
+
+      {/* Next */}
+      <button
+        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-emerald-300 text-emerald-700 disabled:opacity-40"
+      >
+        Next
+      </button>
+    </div>
+  );
+})()}
 
         </motion.div>
 

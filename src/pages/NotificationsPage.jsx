@@ -143,7 +143,7 @@ const formatTime = (timeString) => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div className="flex items-center mb-4 sm:mb-0">
             <div className="relative">
-              <HiBell className="h-8 w-8 text-blue-600 mr-3" />
+              <HiBell className="h-8 w-8 text-green-700 mr-3" />
               
             </div>
             <div>

@@ -31,9 +31,9 @@ function UserPage() {
       const response = await api.get("/role-assign-list/");
       setUsers(response.data);
     } catch (err) {
-      console.error("Error fetching users:", err);
-      showError("Failed to fetch users. Check your network or backend URL.");
-    }
+  console.error("Error fetching users:", err);
+}
+
   };
 
   useEffect(() => {

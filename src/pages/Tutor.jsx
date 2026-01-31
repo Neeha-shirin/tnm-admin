@@ -23,6 +23,7 @@ const Tutor = () => {
       try {
         setLoading(true);
         const res = await api.get("/admin/tutors/");
+        
         const allTutors = res.data.map((t) => ({
           id: t.id,
           name: t.full_name,
@@ -46,10 +47,11 @@ const Tutor = () => {
           add_to_home: t.add_to_home || false,
          
         }));
-
+        
         setTutorRequests(allTutors.filter((t) => t.status === "Pending"));
 
         const approvedRes = await api.get("/admin/tutors/approved/");
+        
         const approvedTutors = approvedRes.data.map((t) => ({
           id: t.id,
           tutor_id: t.tutor_id,
@@ -66,6 +68,9 @@ const Tutor = () => {
             ? t.available_days.map((day) => day.toString())
             : [Object.values(t.available_days || {}).join(" ")],
           description: t.description || "",
+          documents: Array.isArray(t.documents) ? t.documents : [],
+
+
           hourly_rate: t.hourly_rate || "N/A",
           add_to_home: t.add_to_home || false,
           activity: t.active_inactive ? "Active" : "Inactive",
@@ -101,6 +106,8 @@ const Tutor = () => {
 
     fetchTutors();
   }, []);
+
+  
 
   const handleRequestStatusChange = async (tutorId, newStatus) => {
     try {
@@ -167,10 +174,10 @@ const Tutor = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {[
             { icon: "fas fa-user-check", title: "Approved Tutors", value: tutors.length, color: "border-l-green-500" },
-            { icon: "fas fa-user-clock", title: "Pending Requests", value: tutorRequests.length, color: "border-l-yellow-500" },
+           
             { icon: "fas fa-user-times", title: "Rejected Tutors", value: rejectedTutors.length, color: "border-l-red-500" },
           ].map((s, i) => (
             <StatsCard key={i} {...s} />
@@ -301,6 +308,8 @@ const Tutor = () => {
                 </div>
               )}
 
+              
+
               {/* Available Days */}
               {Array.isArray(selectedTutor.available_days) && selectedTutor.available_days.length > 0 && (
                 <div className="mb-4">
@@ -344,6 +353,55 @@ const Tutor = () => {
                   <strong>Hourly Rate:</strong> {selectedTutor.hourly_rate}
                 </p>
               )}
+
+              {/* Documents Section */}
+{/* Documents Section */}
+{Array.isArray(selectedTutor.documents) && selectedTutor.documents.length > 0 && (
+  <div className="mb-6">
+    <h3 className="text-sm font-semibold text-gray-700 mb-3">Documents</h3>
+    
+    <div className="space-y-2">
+      {selectedTutor.documents.map((doc, idx) => (
+        <div
+          key={idx}
+          className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 bg-red-50 rounded">
+              <svg
+                className="w-5 h-5 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <span className="text-gray-700">
+              {doc.name || `Document ${idx + 1}`}
+            </span>
+          </div>
+          
+          <a
+            href={doc.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 bg-emerald-800 text-white text-sm font-medium rounded hover:bg-emerald-600 transition"
+          >
+            View
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
 
               <p className="text-gray-700">
                 <strong>Status:</strong> {selectedTutor.status}

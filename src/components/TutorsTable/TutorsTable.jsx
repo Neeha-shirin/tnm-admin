@@ -276,24 +276,87 @@ const TutorsTable = ({
           </tbody>
         </table>
       </div>
-      {/* Pagination Controls */}
-      {tutors.length > itemsPerPage && (
-        <div className="flex justify-center items-center gap-2 p-4 border-t border-gray-100 bg-gray-50">
-          {Array.from({ length: Math.ceil(tutors.length / itemsPerPage) }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                currentPage === i + 1
-                  ? "bg-green-600 text-white shadow-md"
-                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
+     {/* Pagination Controls */}
+      {tutors.length > itemsPerPage &&
+        (() => {
+          const totalPages = Math.ceil(tutors.length / itemsPerPage);
+          const maxVisiblePages = 5;
+
+          let startPage = Math.max(1, currentPage - 2);
+          let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+          if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+          }
+
+          return (
+            <div className="flex justify-center items-center gap-2 p-4 border-t border-gray-100 bg-gray-50">
+              {/* Prev */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 disabled:opacity-40"
+              >
+                Prev
+              </button>
+
+              {/* First Page */}
+              {startPage > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    className="px-3 py-1 rounded-lg text-sm bg-white border"
+                  >
+                    1
+                  </button>
+                  <span className="px-2 text-gray-500">…</span>
+                </>
+              )}
+
+              {/* Page Numbers */}
+              {Array.from(
+                { length: endPage - startPage + 1 },
+                (_, i) => startPage + i
+              ).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
+                    currentPage === page
+                      ? "bg-green-600 text-white shadow-md"
+                      : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* Last Page */}
+              {endPage < totalPages && (
+                <>
+                  <span className="px-2 text-gray-500">…</span>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="px-3 py-1 rounded-lg text-sm bg-white border"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
+              {/* Next */}
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          );
+        })()}
 
     </div>
   );
